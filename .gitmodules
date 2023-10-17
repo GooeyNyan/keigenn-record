@@ -1,0 +1,3 @@
+[submodule "cactbot"]
+	path = ./src/cactbot
+	url = https://github.com/quisquous/cactbot.git
