@@ -1,6 +1,6 @@
 import { useReducer } from "react";
 import { Party, StoreAction } from "../types/store";
-import { DataObject, DataType } from "../types/dataObject";
+import { DataObject, DataType, LogLineEnum } from "../types/dataObject";
 import { formatDuration } from "../utils/time";
 
 export const initialState = {
@@ -23,25 +23,85 @@ const handleAddList = (
   const item: DataType = action.payload;
   const player = state.party.find((i) => i.id === item.targetId);
 
-  if (player) {
+  if (item.type === LogLineEnum.Ability) {
+    if (player) {
+      item.duration = state.combatDuration;
+      item.target = player.jobName;
+      item.targetIconUrl = player.jobIconUrl;
+      item.targetIconFallbackUrl = player.jobIconFallbackUrl;
+
+      return {
+        ...state,
+        list: [item, ...state.list],
+      };
+    }
+    if (item.targetId === state.playerId) {
+      item.duration = state.combatDuration;
+      item.target = "YOU";
+
+      return {
+        ...state,
+        list: [item, ...state.list],
+      };
+    }
+  }
+
+  if (item.type === LogLineEnum.DoT) {
+    if (player) {
+      item.duration = state.combatDuration;
+      item.ability = "DoT";
+      item.target = player.jobName;
+      item.targetIconUrl = player.jobIconUrl;
+      item.targetIconFallbackUrl = player.jobIconFallbackUrl;
+
+      return {
+        ...state,
+        list: [item, ...state.list],
+      };
+    }
+    if (item.targetId === state.playerId) {
+      item.duration = state.combatDuration;
+      item.ability = "DoT";
+      item.target = "YOU";
+
+      return {
+        ...state,
+        list: [item, ...state.list],
+      };
+    }
+  }
+
+  if (item.type === LogLineEnum.Defeated) {
+    if (!player && item.target !== state.playerId) {
+      return state;
+    }
+
     item.duration = state.combatDuration;
-    item.target = player.jobName;
-    item.targetIconUrl = player.jobIconUrl;
-    item.targetIconFallbackUrl = player.jobIconFallbackUrl;
+
+    let name = item.target;
+
+    if (item.targetId === state.playerId) {
+      name = "你";
+    } else if (player) {
+      name = `${player.jobName}(${player.name})`;
+    }
+
+    item.ability = `🥺 ${name}被${item.source}做掉了！`;
 
     return {
       ...state,
       list: [item, ...state.list],
     };
   }
-  if (action.payload.targetId === state.playerId) {
+
+  if (item.type === LogLineEnum.Wipe) {
     item.duration = state.combatDuration;
-    item.target = "YOU";
     return {
       ...state,
       list: [item, ...state.list],
     };
   }
+
   return state;
 };
 

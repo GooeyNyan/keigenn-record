@@ -6,7 +6,7 @@ import { useTimer } from "./useTimer";
 import Util from "../utils/job";
 import { getIconUrlFromCafeApi, getIconUrlFromXivApi } from "../utils/icon";
 
-let inCombat = false;
+export let inCombat = false;
 
 export const useOverlayEvent = (
   state: typeof initialState,
@@ -66,8 +66,7 @@ export const useOverlayEvent = (
     }
   };
 
-  const onCombatData = (e: EventResponses["CombatData"]): void => {
-  };
+  const onCombatData = (e: EventResponses["CombatData"]): void => {};
 
   const onPlayerChangedEvent = (
     e: EventResponses["onPlayerChangedEvent"],

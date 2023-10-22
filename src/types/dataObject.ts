@@ -31,19 +31,29 @@ export type EffectIcon = {
 
 export type DataType = {
   key: string;
-  duration: string;
-  ability: string;
-  target: string;
-  targetName: string;
+  duration?: string;
+  ability?: string;
+  source?: string;
+  sourceId?: string;
+  target?: string;
+  targetId?: string;
+  targetName?: string;
   targetIconUrl?: string;
   targetIconFallbackUrl?: string;
-  targetId: string;
-  damage: string | number;
-  damageType: DamageType;
+  damage?: string | number;
+  damageType?: DamageType;
   damageIcon?: { url: string; fallbackUrl: string };
-  mutation: string | number;
-  effects: EffectIcon[];
+  mutation?: string | number;
+  effects?: EffectIcon[];
+  type?: LogLineEnum;
 };
+
+export enum LogLineEnum {
+  Ability = 1,
+  DoT,
+  Defeated,
+  Wipe,
+}
 
 export enum DamageType {
   Physics = 1,

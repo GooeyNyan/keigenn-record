@@ -1,7 +1,7 @@
 import { EventResponses } from "../../cactbot/types/event";
 import { processAbilityLine } from "../../cactbot/ui/oopsyraidsy/death_report";
 import { keigenns } from "../constants/keigenns";
-import { DataType, Effect, EffectIcon } from "../types/dataObject";
+import { DataType, Effect, EffectIcon, LogLineEnum } from "../types/dataObject";
 import { StoreAction } from "../types/store";
 import {
   DamageIcon,
@@ -13,9 +13,12 @@ import {
   getDamageType,
   getMutation,
   isAbility,
+  isDefeated,
+  isDot,
   isGainsEffect,
   isLosesEffect,
   isUsefull,
+  isWipe,
 } from "../utils/logLine";
 import { initialState } from "./useStore";
 
@@ -130,6 +133,7 @@ export const handleAbility = (
       mutation: mutation,
       duration: "00:00",
       effects: effectIcons,
+      type: LogLineEnum.Ability,
     };
 
     dispatch({
@@ -225,6 +229,114 @@ export const handleLosesEffect = (
   processedLogsCleaner();
 };
 
+export const handleDot = (
+  state: typeof initialState,
+  dispatch: React.Dispatch<any>,
+  e: EventResponses["LogLine"],
+) => {
+  const [
+    type,
+    timestamp,
+    id,
+    name,
+    which,
+    _effectId,
+    damage,
+    _currentHp,
+    _maxHp,
+    _currentMp,
+    _maxMp,
+    _currentTp,
+    _maxTp,
+    _x,
+    _y,
+    _z,
+    _heading,
+    sourceId,
+    source,
+    // An id number lookup into the AttackType table
+    _damageType,
+    _sourceCurrentHp,
+    _sourceMaxHp,
+    _sourceCurrentMp,
+    _sourceMaxMp,
+    _sourceCurrentTp,
+    _sourceMaxTp,
+    _sourceX,
+    _sourceY,
+    _sourceZ,
+    _sourceHeading,
+  ] = e.line;
+  const eventId = e.line[e.line.length - 1];
+
+  if (which === "DoT") {
+    const output: DataType = {
+      key: eventId,
+      type: LogLineEnum.DoT,
+      targetId: id,
+      targetName: name,
+      source,
+      sourceId,
+      damage: Number.parseInt(damage, 16),
+    };
+
+    dispatch({
+      type: StoreAction.AddList,
+      payload: output,
+    });
+  }
+
+  processedLogsCleaner();
+};
+
+export const handleDefeated = (
+  state: typeof initialState,
+  dispatch: React.Dispatch<any>,
+  e: EventResponses["LogLine"],
+) => {
+  const [type, timestamp, targetId, target, sourceId, source] = e.line;
+  const eventId = e.line[e.line.length - 1];
+
+  const output: DataType = {
+    key: eventId,
+    type: LogLineEnum.Defeated,
+    targetId,
+    target,
+    sourceId,
+    source,
+  };
+
+  dispatch({
+    type: StoreAction.AddList,
+    payload: output,
+  });
+
+  processedLogsCleaner();
+};
+
+export const handleWipe = (
+  state: typeof initialState,
+  dispatch: React.Dispatch<any>,
+  e: EventResponses["LogLine"],
+) => {
+  const [type, timestamp, instance, command, data0, data1, data2, data3] =
+    e.line;
+  const eventId = e.line[e.line.length - 1];
+
+  const output: DataType = {
+    key: eventId,
+    ability: `✋ 团灭`,
+    type: LogLineEnum.Wipe,
+  };
+
+  dispatch({
+    type: StoreAction.AddList,
+    payload: output,
+  });
+
+  processedLogsCleaner();
+};
+
 export const useLogLine = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
@@ -238,6 +350,12 @@ export const useLogLine = (
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {
       handleLosesEffect(state, e);
+    } else if (isDot(e) && canHandleLog(eventId)) {
+      handleDot(state, dispatch, e);
+    } else if (isDefeated(e) && canHandleLog(eventId)) {
+      handleDefeated(state, dispatch, e);
+    } else if (isWipe(e) && canHandleLog(eventId)) {
+      handleWipe(state, dispatch, e);
     }
   };
 
