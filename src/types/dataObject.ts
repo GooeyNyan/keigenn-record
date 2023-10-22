@@ -5,9 +5,11 @@ export type DataObject = {
 };
 
 export type Effect = {
+  timestamp?: number;
+  expiration: number;
   effectId: string;
   effect: string;
-  duration: string;
+  duration?: string;
   sourceId: string;
   source: string;
   targetId: string;
@@ -19,8 +21,12 @@ export type Effect = {
 
 export type EffectIcon = {
   duration: string;
+  effectId: string;
+  effect: string;
   url: string;
   fallbackUrl: string;
+  isUsefull: boolean;
+  isOwner: boolean;
 };
 
 export type DataType = {
@@ -28,6 +34,22 @@ export type DataType = {
   duration: string;
   ability: string;
   target: string;
+  targetName: string;
+  targetIconUrl?: string;
+  targetIconFallbackUrl?: string;
+  targetId: string;
   damage: string | number;
+  damageType: DamageType;
+  damageIcon?: { url: string; fallbackUrl: string };
+  mutation: string | number;
   effects: EffectIcon[];
 };
+
+export enum DamageType {
+  Physics = 1,
+  Magic,
+  Darkness,
+  Dodge,
+  Death,
+  Unknown,
+}

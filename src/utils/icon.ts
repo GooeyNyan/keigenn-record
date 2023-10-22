@@ -1,23 +1,27 @@
 import { effectIdToStatus } from "../constants/status";
+import { DamageType } from "../types/dataObject";
 
 enum API_HOST {
   XIV_API = "https://xivapi.com",
   CAFE_API = "https://cafemaker.wakingsands.com",
 }
 
-export const getEffectIconPath = (effectId: string) => {
+export const getEffectIconPath = (effectId: string, count?: number) => {
   const index = Number.parseInt(effectId, 16);
   if (index in effectIdToStatus) {
-    const statusId = effectIdToStatus[index];
+    let statusId = effectIdToStatus[index];
+    if (count && count > 1 && count <= 16) {
+      statusId += count - 1;
+    }
     return getIconPath(String(statusId));
   }
   return "";
 };
 
-export const getEffectIconUrlFromXivApi = (path: string) =>
+export const getIconUrlFromXivApi = (path: string) =>
   `${API_HOST.XIV_API}/i/${path}`;
 
-export const getEffectIconUrlFromCafeApi = (path: string) =>
+export const getIconUrlFromCafeApi = (path: string) =>
   `${API_HOST.CAFE_API}/i/${path}`;
 
 export const getIconPath = (iconId: string) => {
@@ -41,4 +45,34 @@ export const getIconPath = (iconId: string) => {
   let path: string = `${folder_id}/${iconId}.png`;
 
   return path;
+};
+
+export const DamageIcon: Record<
+  DamageType,
+  { url: string; fallbackUrl: string }
+> = {
+  [DamageType.Physics]: {
+    url: getIconUrlFromCafeApi(getIconPath("060011")),
+    fallbackUrl: getIconUrlFromXivApi(getIconPath("060011")),
+  },
+  [DamageType.Magic]: {
+    url: getIconUrlFromCafeApi(getIconPath("060012")),
+    fallbackUrl: getIconUrlFromXivApi(getIconPath("060012")),
+  },
+  [DamageType.Darkness]: {
+    url: getIconUrlFromCafeApi(getIconPath("060013")),
+    fallbackUrl: getIconUrlFromXivApi(getIconPath("060013")),
+  },
+  [DamageType.Death]: {
+    url: getIconUrlFromCafeApi(getIconPath("060013")),
+    fallbackUrl: getIconUrlFromXivApi(getIconPath("060013")),
+  },
+  [DamageType.Dodge]: {
+    url: "",
+    fallbackUrl: "",
+  },
+  [DamageType.Unknown]: {
+    url: "",
+    fallbackUrl: "",
+  },
 };
