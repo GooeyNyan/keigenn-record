@@ -89,8 +89,13 @@ export const getMutation = (args: {
   const effectsToMutation = effects.map((effect) => {
     try {
       const keigenn = keigenns[effect.effectId];
+      if (effect.mutation) {
+        return effect.mutation;
+      }
       if (keigenn?.getMutation) {
-        return keigenn.getMutation(effect, state);
+        const mutation = keigenn.getMutation(effect, state);
+        effect.mutation = mutation;
+        return mutation;
       } else if (keigenn?.mutation) {
         return keigenn.mutation;
       }

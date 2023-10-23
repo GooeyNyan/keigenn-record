@@ -10,6 +10,8 @@ import {
   getIconUrlFromXivApi,
 } from "../utils/icon";
 import {
+  blockLowByte,
+  dodgeLowByte,
   getDamageType,
   getMutation,
   isAbility,
@@ -19,6 +21,7 @@ import {
   isLosesEffect,
   isUsefull,
   isWipe,
+  parriedLowByte,
 } from "../utils/logLine";
 import { initialState } from "./useStore";
 
@@ -90,10 +93,10 @@ export const handleAbility = (
     const targetEffects = getDataObjectEffects(state, target);
     const sourceEffects = getDataObjectEffects(state, source);
 
-    const keigennEffects = Array.from([
+    const keigennEffects = [
       ...filterTargetEffects([...targetEffects]),
       ...filterSourceEffects([...sourceEffects]),
-    ]);
+    ];
 
     const now = new Date(timestamp).getTime();
     const effectIcons = keigennEffects.map((effect) => {
@@ -135,6 +138,11 @@ export const handleAbility = (
       duration: "00:00",
       effects: effectIcons,
       type: LogLineEnum.Ability,
+      source,
+      sourceId,
+      isBlock: lowByte === blockLowByte,
+      isParried: lowByte === parriedLowByte,
+      isDodge: lowByte === dodgeLowByte,
     };
 
     dispatch({
@@ -335,12 +343,10 @@ export const handleWipe = (
     payload: output,
   });
 
-  const kMinimumSecondsAfterWipe = 3;
+  const kMinimumSecondsAfterWipe = 2;
 
   setTimeout(() => {
-    dispatch({
-      type: StoreAction.MoveDataToHistoricalData,
-    });
+    dispatch({ type: StoreAction.MoveDataToHistoricalData });
   }, kMinimumSecondsAfterWipe * 1000);
 
   processedLogsCleaner();

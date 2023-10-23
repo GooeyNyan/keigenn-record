@@ -19,6 +19,7 @@ export type Effect = {
   count: string;
   url: string;
   fallbackUrl: string;
+  mutation?: { physics: number; magic: number };
 };
 
 export type EffectIcon = {
@@ -49,6 +50,9 @@ export type DataType = {
   mutation?: string | number;
   effects?: EffectIcon[];
   type?: LogLineEnum;
+  isBlock?: boolean;
+  isParried?: boolean;
+  isDodge?: boolean;
 };
 
 export type HistoricalData = {

@@ -8,6 +8,8 @@ import {
 } from "../types/dataObject";
 import { formatDuration } from "../utils/time";
 
+export const MAX_HISTORICAL_DATA_LENGTH = 5;
+
 export const initialState = {
   list: [] as DataType[],
   startTime: undefined,
@@ -129,6 +131,10 @@ const handleStartCombat = (
     return state;
   }
 
+  if (state.timer) {
+    clearInterval(state.timer);
+  }
+
   return {
     ...state,
     startTime: action.startTime,
@@ -208,6 +214,7 @@ const handleMoveDataToHistoricalData = (
   try {
     const {
       list,
+      startTime,
       lastStartTime,
       endTime,
       combatDuration,
@@ -216,12 +223,22 @@ const handleMoveDataToHistoricalData = (
       party,
       zoneID,
       zoneName,
+      historicalData,
+      timer,
     } = state;
+
+    if (list.length === 0) {
+      return state;
+    }
+
+    if (timer) {
+      clearInterval(timer);
+    }
 
     const historicalDataItem: HistoricalData = {
       key: list[0].key,
       list: JSON.parse(JSON.stringify(list)),
-      startTime: lastStartTime as unknown as number,
+      startTime: (lastStartTime ?? startTime) as unknown as number,
       endTime: endTime as unknown as number,
       combatDuration,
       playerId,
@@ -231,9 +248,14 @@ const handleMoveDataToHistoricalData = (
       zoneName,
     };
 
+    if (historicalData.length > MAX_HISTORICAL_DATA_LENGTH) {
+      historicalData.pop();
+    }
+
     return {
       ...state,
       startTime: undefined,
+      lastStartTime: undefined,
       endTime: undefined,
       timer: undefined,
       inCombat: false,
@@ -256,10 +278,6 @@ const handleSetActiveHistoricalData = (
   const activeHistoricalData = state.historicalData.find(
     (i) => i.key === activeHistoricalKey,
   );
-  console.log(">>> handleSetActiveHistoricalData", {
-    activeHistoricalKey,
-    activeHistoricalData,
-  });
   return {
     ...state,
     activeHistoricalData: activeHistoricalData as HistoricalData,

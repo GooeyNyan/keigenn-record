@@ -389,6 +389,7 @@ export const keigenns: Record<string, Keigenn> = {
   "1E8": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 残影
   A8: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 魔罩
   A8E: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 守护之光
+  A24: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 守护纹（低等级）
   A25: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 守护纹
   A93: {
     dodge: 1,

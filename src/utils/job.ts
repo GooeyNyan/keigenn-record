@@ -1,4 +1,6 @@
+import { defaultConfig, localStorageConfigKey } from "../constants/ui";
 import { Job, Role, FFIcon } from "../types/job";
+import { TargetType } from "../types/ui";
 import { getIconPath } from "./icon";
 
 const iconToJobEnum: Record<FFIcon, number> = {
@@ -78,6 +80,7 @@ const nameToFullName: Record<
     simple2: string;
     icon: string;
     iconFramed: string;
+    iconV3: string;
   }
 > = {
   NONE: {
@@ -88,6 +91,7 @@ const nameToFullName: Record<
     simple2: "冒险",
     icon: "062043",
     iconFramed: "062143",
+    iconV3: "062043",
   },
   GLA: {
     en: "Gladiator",
@@ -97,6 +101,7 @@ const nameToFullName: Record<
     simple2: "剑术",
     icon: "062001",
     iconFramed: "062101",
+    iconV3: "062301",
   },
   PGL: {
     en: "Pugilist",
@@ -106,6 +111,7 @@ const nameToFullName: Record<
     simple2: "格斗",
     icon: "062002",
     iconFramed: "062102",
+    iconV3: "062302",
   },
   MRD: {
     en: "Marauder",
@@ -115,6 +121,7 @@ const nameToFullName: Record<
     simple2: "斧术",
     icon: "062003",
     iconFramed: "062103",
+    iconV3: "062303",
   },
   LNC: {
     en: "Lancer",
@@ -124,6 +131,7 @@ const nameToFullName: Record<
     simple2: "枪术",
     icon: "062004",
     iconFramed: "062104",
+    iconV3: "062304",
   },
   ARC: {
     en: "Archer",
@@ -133,6 +141,7 @@ const nameToFullName: Record<
     simple2: "弓箭",
     icon: "062005",
     iconFramed: "062105",
+    iconV3: "062305",
   },
   CNJ: {
     en: "Conjurer",
@@ -142,6 +151,7 @@ const nameToFullName: Record<
     simple2: "幻术",
     icon: "062006",
     iconFramed: "062106",
+    iconV3: "062306",
   },
   THM: {
     en: "Thaumaturge",
@@ -151,6 +161,7 @@ const nameToFullName: Record<
     simple2: "咒术",
     icon: "062007",
     iconFramed: "062107",
+    iconV3: "062307",
   },
   CRP: {
     en: "Carpenter",
@@ -160,6 +171,7 @@ const nameToFullName: Record<
     simple2: "刻木",
     icon: "062008",
     iconFramed: "062108",
+    iconV3: "062310",
   },
   BSM: {
     en: "Blacksmith",
@@ -169,6 +181,7 @@ const nameToFullName: Record<
     simple2: "锻铁",
     icon: "062009",
     iconFramed: "062109",
+    iconV3: "062311",
   },
   ARM: {
     en: "Armorer",
@@ -178,6 +191,7 @@ const nameToFullName: Record<
     simple2: "铸甲",
     icon: "062010",
     iconFramed: "062110",
+    iconV3: "062312",
   },
   GSM: {
     en: "Goldsmith",
@@ -187,6 +201,7 @@ const nameToFullName: Record<
     simple2: "雕金",
     icon: "062011",
     iconFramed: "062111",
+    iconV3: "062313",
   },
   LTW: {
     en: "Leatherworker",
@@ -196,6 +211,7 @@ const nameToFullName: Record<
     simple2: "制革",
     icon: "062012",
     iconFramed: "062112",
+    iconV3: "062314",
   },
   WVR: {
     en: "Weaver",
@@ -205,6 +221,7 @@ const nameToFullName: Record<
     simple2: "裁衣",
     icon: "062013",
     iconFramed: "062113",
+    iconV3: "062315",
   },
   ALC: {
     en: "Alchemist",
@@ -214,6 +231,7 @@ const nameToFullName: Record<
     simple2: "炼金",
     icon: "062014",
     iconFramed: "062114",
+    iconV3: "062316",
   },
   CUL: {
     en: "Culinarian",
@@ -223,6 +241,7 @@ const nameToFullName: Record<
     simple2: "烹调",
     icon: "062015",
     iconFramed: "062115",
+    iconV3: "062317",
   },
   MIN: {
     en: "Miner",
@@ -232,6 +251,7 @@ const nameToFullName: Record<
     simple2: "采矿",
     icon: "062016",
     iconFramed: "062116",
+    iconV3: "062318",
   },
   BTN: {
     en: "Botanist",
@@ -241,6 +261,7 @@ const nameToFullName: Record<
     simple2: "园艺",
     icon: "062017",
     iconFramed: "062117",
+    iconV3: "062319",
   },
   FSH: {
     en: "Fisher",
@@ -250,6 +271,7 @@ const nameToFullName: Record<
     simple2: "捕鱼",
     icon: "062018",
     iconFramed: "062118",
+    iconV3: "062320",
   },
   PLD: {
     en: "Paladin",
@@ -259,6 +281,7 @@ const nameToFullName: Record<
     simple2: "骑士",
     icon: "062019",
     iconFramed: "062119",
+    iconV3: "062401",
   },
   MNK: {
     en: "Monk",
@@ -268,6 +291,7 @@ const nameToFullName: Record<
     simple2: "武僧",
     icon: "062020",
     iconFramed: "062120",
+    iconV3: "062402",
   },
   WAR: {
     en: "Warrior",
@@ -277,6 +301,7 @@ const nameToFullName: Record<
     simple2: "战士",
     icon: "062021",
     iconFramed: "062121",
+    iconV3: "062403",
   },
   DRG: {
     en: "Dragoon",
@@ -286,6 +311,7 @@ const nameToFullName: Record<
     simple2: "龙骑",
     icon: "062022",
     iconFramed: "062122",
+    iconV3: "062404",
   },
   BRD: {
     en: "Bard",
@@ -295,6 +321,7 @@ const nameToFullName: Record<
     simple2: "诗人",
     icon: "062023",
     iconFramed: "062123",
+    iconV3: "062405",
   },
   WHM: {
     en: "White Mage",
@@ -304,6 +331,7 @@ const nameToFullName: Record<
     simple2: "白魔",
     icon: "062024",
     iconFramed: "062124",
+    iconV3: "062406",
   },
   BLM: {
     en: "Black Mage",
@@ -313,6 +341,7 @@ const nameToFullName: Record<
     simple2: "黑魔",
     icon: "062025",
     iconFramed: "062125",
+    iconV3: "062407",
   },
   ACN: {
     en: "Arcanist",
@@ -322,6 +351,7 @@ const nameToFullName: Record<
     simple2: "秘术",
     icon: "062026",
     iconFramed: "062126",
+    iconV3: "062308",
   },
   SMN: {
     en: "Summoner",
@@ -331,6 +361,7 @@ const nameToFullName: Record<
     simple2: "召唤",
     icon: "062027",
     iconFramed: "062127",
+    iconV3: "062408",
   },
   SCH: {
     en: "Scholar",
@@ -340,6 +371,7 @@ const nameToFullName: Record<
     simple2: "学者",
     icon: "062028",
     iconFramed: "062128",
+    iconV3: "062409",
   },
   ROG: {
     en: "Rogue",
@@ -349,6 +381,7 @@ const nameToFullName: Record<
     simple2: "双剑",
     icon: "062029",
     iconFramed: "062129",
+    iconV3: "062309",
   },
   NIN: {
     en: "Ninja",
@@ -358,6 +391,7 @@ const nameToFullName: Record<
     simple2: "忍者",
     icon: "062030",
     iconFramed: "062130",
+    iconV3: "062410",
   },
   MCH: {
     en: "Machinist",
@@ -367,6 +401,7 @@ const nameToFullName: Record<
     simple2: "机工",
     icon: "062031",
     iconFramed: "062131",
+    iconV3: "062411",
   },
   DRK: {
     en: "Dark Knight",
@@ -376,6 +411,7 @@ const nameToFullName: Record<
     simple2: "暗骑",
     icon: "062032",
     iconFramed: "062132",
+    iconV3: "062412",
   },
   AST: {
     en: "Astrologian",
@@ -385,6 +421,7 @@ const nameToFullName: Record<
     simple2: "占星",
     icon: "062033",
     iconFramed: "062133",
+    iconV3: "062413",
   },
   SAM: {
     en: "Samurai",
@@ -394,6 +431,7 @@ const nameToFullName: Record<
     simple2: "武士",
     icon: "062034",
     iconFramed: "062134",
+    iconV3: "062414",
   },
   RDM: {
     en: "Red Mage",
@@ -403,6 +441,7 @@ const nameToFullName: Record<
     simple2: "赤魔",
     icon: "062035",
     iconFramed: "062135",
+    iconV3: "062415",
   },
   BLU: {
     en: "Blue Mage",
@@ -412,6 +451,7 @@ const nameToFullName: Record<
     simple2: "青魔",
     icon: "062036",
     iconFramed: "062136",
+    iconV3: "062416",
   },
   GNB: {
     en: "Gunbreaker",
@@ -421,6 +461,7 @@ const nameToFullName: Record<
     simple2: "绝枪",
     icon: "062037",
     iconFramed: "062137",
+    iconV3: "062417",
   },
   DNC: {
     en: "Dancer",
@@ -430,6 +471,7 @@ const nameToFullName: Record<
     simple2: "舞者",
     icon: "062038",
     iconFramed: "062138",
+    iconV3: "062418",
   },
   RPR: {
     en: "Reaper",
@@ -439,6 +481,7 @@ const nameToFullName: Record<
     simple2: "钐镰",
     icon: "062039",
     iconFramed: "062139",
+    iconV3: "062419",
   },
   SGE: {
     en: "Sage",
@@ -448,6 +491,7 @@ const nameToFullName: Record<
     simple2: "贤者",
     icon: "062040",
     iconFramed: "062140",
+    iconV3: "062420",
   },
 };
 const allJobs = Object.keys(nameToJobEnum) as Job[];
@@ -525,16 +569,36 @@ const jobToRoleMap: Map<Job, Role> = (() => {
   return map;
 })();
 
+let config = defaultConfig;
+try {
+  const localConfig = localStorage.getItem(localStorageConfigKey);
+  if (localConfig) {
+    config = JSON.parse(localConfig);
+  }
+} catch (e) {
+  console.error("JSON.parse localConfig error", e);
+}
+
 const Util = {
   jobEnumToJob: (id: number) => {
     const job = allJobs.find((job: Job) => nameToJobEnum[job] === id);
     return job ?? "NONE";
   },
-  jobEnumToJobIconPath: (id: number) => {
+  jobEnumToJobIconPath: (job: number) => {
     const noneJobEnum = 43;
-    const jobEnum = id ?? noneJobEnum;
-    // return getIconPath(`0621${jobEnum.toString().padStart(2, "0")}`);
-    return getIconPath(`0621${jobEnum.toString().padStart(2, "0")}`);
+    const jobEnum = job ?? noneJobEnum;
+    if (config.targetType === TargetType.JobName) {
+      return "";
+    }
+    if (config.targetType === TargetType.JobIcon) {
+      return getIconPath(`0620${jobEnum.toString().padStart(2, "0")}`);
+    } else if (config.targetType === TargetType.JobIconV2) {
+      return getIconPath(`0621${jobEnum.toString().padStart(2, "0")}`);
+    } else if (config.targetType === TargetType.JobIconV3) {
+      const jobObj = nameToFullName[Util.jobEnumToJob(job)];
+      return getIconPath(jobObj.iconV3);
+    }
+    return "";
   },
   jobToJobEnum: (job: Job) => nameToJobEnum[job],
   jobToRole: (job: Job) => {
