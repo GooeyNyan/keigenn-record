@@ -6,15 +6,25 @@ enum API_HOST {
   CAFE_API = "https://cafemaker.wakingsands.com",
 }
 
+const iconPathCache: Record<string, string> = {};
+
 export const getEffectIconPath = (effectId: string, count?: number) => {
+  const cacheKey = `${effectId}_${count}`;
+  if (cacheKey in iconPathCache) {
+    return iconPathCache[cacheKey];
+  }
+
   const index = Number.parseInt(effectId, 16);
   if (index in effectIdToStatus) {
     let statusId = effectIdToStatus[index];
     if (count && count > 1 && count <= 16) {
       statusId += count - 1;
     }
-    return getIconPath(String(statusId));
+    const path = getIconPath(String(statusId));
+    iconPathCache[cacheKey] = path;
+    return path;
   }
+  iconPathCache[cacheKey] = "";
   return "";
 };
 

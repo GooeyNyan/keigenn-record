@@ -105,6 +105,7 @@ export const handleAbility = (
       if (Number.parseInt(duration) > 9000) duration = "∞";
       return {
         duration: duration,
+        source: effect.source,
         effectId: effect.effectId,
         effect: effect.effect,
         url: effect.url,
@@ -333,6 +334,14 @@ export const handleWipe = (
     type: StoreAction.AddList,
     payload: output,
   });
+
+  const kMinimumSecondsAfterWipe = 3;
+
+  setTimeout(() => {
+    dispatch({
+      type: StoreAction.MoveDataToHistoricalData,
+    });
+  }, kMinimumSecondsAfterWipe * 1000);
 
   processedLogsCleaner();
 };

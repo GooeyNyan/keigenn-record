@@ -60,6 +60,13 @@ export const useOverlayEvent = (
   };
 
   const onChangeZone = (e: EventResponses["ChangeZone"]): void => {
+    dispatch({
+      type: StoreAction.ChangeZone,
+      payload: {
+        zoneID: e.zoneID,
+        zoneName: e.zoneName,
+      },
+    });
     if (inCombat) {
       stopTimer(Date.now());
       inCombat = false;

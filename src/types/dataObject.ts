@@ -1,3 +1,5 @@
+import { Party } from "./store";
+
 export type DataObject = {
   id: string;
   name: string;
@@ -21,6 +23,7 @@ export type Effect = {
 
 export type EffectIcon = {
   duration: string;
+  source: string;
   effectId: string;
   effect: string;
   url: string;
@@ -46,6 +49,19 @@ export type DataType = {
   mutation?: string | number;
   effects?: EffectIcon[];
   type?: LogLineEnum;
+};
+
+export type HistoricalData = {
+  key: string;
+  list: DataType[];
+  startTime: number;
+  endTime: number;
+  combatDuration: string;
+  playerId: string;
+  playerName: string;
+  party: Party[];
+  zoneID: string;
+  zoneName: string;
 };
 
 export enum LogLineEnum {

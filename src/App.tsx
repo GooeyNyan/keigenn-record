@@ -1,5 +1,8 @@
-import { ConfigProvider, Image, Popover, Statistic, Table, theme } from "antd";
+import { HistoryOutlined, SettingOutlined } from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import { ConfigProvider, Dropdown, Image, Popover, Table, theme } from "antd";
 import type { ColumnsType } from "antd/es/table";
+import classnames from "classnames";
 import { useEffect, useRef, useState } from "react";
 import {
   addOverlayListener,
@@ -15,7 +18,7 @@ import {
   EffectIcon,
   LogLineEnum,
 } from "./types/dataObject";
-import classnames from "classnames";
+import { StoreAction } from "./types/store";
 
 const TableHeaderHeight = 28;
 
@@ -117,9 +120,29 @@ function App(): JSX.Element {
       title: "目标",
       dataIndex: "target",
       key: "target",
-      width: 40,
+      width: 60,
       shouldCellUpdate: (record, prevRecord) =>
         record.target !== prevRecord.target,
+      filters:
+        /**
+         * 有点难看
+         * 先判断当前 list 里面有没有值
+         * 在判断历史数据里面有没有值
+         */
+        state.list.length > 0
+          ? state.party
+            ? state.party.map((i) => ({
+                text: `${i.jobName} - ${i.name}`,
+                value: i.id,
+              }))
+            : undefined
+          : state?.activeHistoricalData?.party
+          ? state?.activeHistoricalData?.party.map((i) => ({
+              text: `${i.jobName} - ${i.name}`,
+              value: i.id,
+            }))
+          : undefined,
+      onFilter: (value, record: DataType) => record.targetId === value,
       render: (value, record) => {
         return record.type === LogLineEnum.Ability ||
           record.type === LogLineEnum.DoT ? (
@@ -202,7 +225,10 @@ function App(): JSX.Element {
         <div className="flex items-center flex-wrap min-h-full">
           {value?.map((effect: EffectIcon) => {
             return (
-              <Popover content={effect.effect} key={effect.effectId}>
+              <Popover
+                content={`${effect.effect} ${effect.source}`}
+                key={effect.effectId}
+              >
                 <div className="relative">
                   <Image
                     className={!effect.isUsefull ? "grayscale" : ""}
@@ -230,21 +256,49 @@ function App(): JSX.Element {
     },
   ];
 
+  const dropdownItems: MenuProps["items"] = state.historicalData.map(
+    (data) => ({
+      key: data.key,
+      label: (
+        <div>
+          <div
+            className={classnames({
+              "text-cyan-400 font-bold": state.activeHistoricalKey === data.key,
+            })}
+          >
+            <span className="mr-2">{data.combatDuration}</span>
+            <span>{data.zoneName}</span>
+          </div>
+          <div>
+            <span>{new Date(data.startTime).toLocaleString()}</span>
+          </div>
+        </div>
+      ),
+    }),
+  );
+
+  const onClickDropdown: MenuProps["onClick"] = ({ key }) => {
+    dispatch({
+      type: StoreAction.SetActiveHistoricalData,
+      activeHistoricalKey: key,
+    });
+  };
+
   return (
-    <div className="w-screen">
-      <ConfigProvider
-        theme={{
-          algorithm: [theme.darkAlgorithm],
-          components: {
-            Table: {
-              colorBgContainer: "rgba(67, 67, 67, 0.45)",
-              colorText: "#fafafa",
-              fontSize: 12,
-              algorithm: true,
-            },
+    <ConfigProvider
+      theme={{
+        algorithm: [theme.darkAlgorithm],
+        components: {
+          Table: {
+            colorBgContainer: "rgba(67, 67, 67, 0.45)",
+            colorText: "#fafafa",
+            fontSize: 12,
+            algorithm: true,
           },
-        }}
-      >
+        },
+      }}
+    >
+      <div className="w-screen relative">
         <Table
           ref={tableRef}
           rowClassName={(record: DataType) => {
@@ -257,7 +311,11 @@ function App(): JSX.Element {
             return "";
           }}
           columns={columns}
-          dataSource={state.list}
+          dataSource={
+            state?.list?.length > 0
+              ? state?.list
+              : state?.activeHistoricalData?.list ?? []
+          }
           pagination={false}
           // virtual
           scroll={{
@@ -266,8 +324,20 @@ function App(): JSX.Element {
           }}
           size="small"
         />
-      </ConfigProvider>
-    </div>
+        <div className="absolute top-1.5 right-2">
+          <Dropdown
+            menu={{
+              items: dropdownItems,
+              onClick: onClickDropdown,
+            }}
+            arrow={false}
+          >
+            <HistoryOutlined className="mr-3 text-zinc-50" />
+          </Dropdown>
+          <SettingOutlined className="text-zinc-50" />
+        </div>
+      </div>
+    </ConfigProvider>
   );
 }
 

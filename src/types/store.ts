@@ -7,6 +7,9 @@ export enum StoreAction {
   UpdateDuration,
   ChangePlayer,
   PartyChange,
+  ChangeZone,
+  MoveDataToHistoricalData,
+  SetActiveHistoricalData,
 }
 
 export interface Party extends BaseParty {
