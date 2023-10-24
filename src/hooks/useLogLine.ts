@@ -109,12 +109,13 @@ export const handleAbility = (
       return {
         duration: duration,
         source: effect.source,
+        sourceId: effect.sourceId,
         effectId: effect.effectId,
         effect: effect.effect,
         url: effect.url,
         fallbackUrl: effect.fallbackUrl,
         isUsefull: usefull,
-        isOwner: effect.sourceId === targetId,
+        // isOwner: effect.sourceId === targetId,
       } as EffectIcon;
     });
 
@@ -346,6 +347,7 @@ export const handleWipe = (
   const kMinimumSecondsAfterWipe = 2;
 
   setTimeout(() => {
+    processedLogs.clear();
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
   }, kMinimumSecondsAfterWipe * 1000);
 

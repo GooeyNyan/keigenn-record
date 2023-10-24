@@ -36,6 +36,13 @@ const handleAddList = (
   const item: DataType = action.payload;
   const player = state.party.find((i) => i.id === item.targetId);
 
+  if (item.effects) {
+    item.effects = item.effects.map((effect) => ({
+      ...effect,
+      isOwner: effect.sourceId === state.playerId,
+    }));
+  }
+
   if (item.type === LogLineEnum.Ability) {
     if (player) {
       item.duration = state.combatDuration;
@@ -234,6 +241,8 @@ const handleMoveDataToHistoricalData = (
     if (timer) {
       clearInterval(timer);
     }
+
+    state.dataObjectMap.clear();
 
     const historicalDataItem: HistoricalData = {
       key: list[0].key,

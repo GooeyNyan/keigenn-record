@@ -25,6 +25,7 @@ export type Effect = {
 export type EffectIcon = {
   duration: string;
   source: string;
+  sourceId: string;
   effectId: string;
   effect: string;
   url: string;

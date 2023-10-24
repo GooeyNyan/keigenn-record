@@ -59,6 +59,9 @@ function App(): JSX.Element {
   const [settingVisible, setSettingVisible] = useState<boolean>(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const [config, setConfig] = useState<Config>(prevConfig);
+  const [isLocked, setIsLocked] = useState<boolean>(true);
+  const [isActOverlay, setIsActOverlay] = useState<boolean>(true);
+
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -74,6 +77,12 @@ function App(): JSX.Element {
   const handleResize = () => {
     setViewportWidth(window.innerWidth);
     setViewportHeight(window.innerHeight);
+  };
+
+  const handleOverlayStateUpdate = (e: any) => {
+    if ("isLocked" in e?.detail) {
+      setIsLocked(e?.detail?.isLocked);
+    }
   };
 
   const handleSettingOk = async () => {
@@ -126,6 +135,7 @@ ${
     addOverlayListener("PartyChanged", onPartyChanged);
     addOverlayListener("ChangeZone", onChangeZone);
     addEventListener("resize", handleResize);
+    document.addEventListener("onOverlayStateUpdate", handleOverlayStateUpdate);
 
     return () => {
       removeOverlayListener("LogLine", onLogLine);
@@ -134,7 +144,22 @@ ${
       removeOverlayListener("PartyChanged", onPartyChanged);
       removeOverlayListener("ChangeZone", onChangeZone);
       removeEventListener("resize", handleResize);
+      document.removeEventListener(
+        "onOverlayStateUpdate",
+        handleOverlayStateUpdate,
+      );
     };
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const overlayWs = urlParams.get("OVERLAY_WS");
+      const hostPort = urlParams.get("HOST_PORT");
+      if (!window.OverlayPluginApi && !overlayWs && !hostPort) {
+        setIsActOverlay(false);
+      }
+    }, 1000);
   }, []);
 
   useEffect(() => {
@@ -435,7 +460,7 @@ ${
               : state?.activeHistoricalData?.list ?? []
           }
           pagination={false}
-          // virtual
+          virtual
           scroll={{
             x: viewportWidth,
             y: viewportHeight - tableHeaderHeight,
@@ -557,6 +582,22 @@ ${
             </Form.Item>
           </Form>
         </Modal>
+
+        {!isLocked ? (
+          <div className="fixed top-0 left-0 w-screen h-screen rounded-md bg-zinc-500/50 z-10">
+            <div className="absolute bottom-2 left-2 text-sm text-black">
+              🔓 请调整至合适大小，随后在ACT勾选"锁定悬浮窗"以开始使用。
+            </div>
+          </div>
+        ) : null}
+
+        {!isActOverlay ? (
+          <div className="fixed top-0 left-0 w-screen h-screen rounded-md bg-zinc-500/50 z-10">
+            <div className="absolute bottom-2 left-2 text-sm text-black">
+              ⚠️ 请在ACT悬浮窗中添加此页面。
+            </div>
+          </div>
+        ) : null}
       </div>
     </ConfigProvider>
   );
