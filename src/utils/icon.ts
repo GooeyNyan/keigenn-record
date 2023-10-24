@@ -1,4 +1,4 @@
-import { effectIdToStatus } from "../constants/status";
+import { getStatusIdOfEffect } from "../constants/status";
 import { DamageType } from "../types/dataObject";
 
 enum API_HOST {
@@ -14,18 +14,14 @@ export const getEffectIconPath = (effectId: string, count?: number) => {
     return iconPathCache[cacheKey];
   }
 
-  const index = Number.parseInt(effectId, 16);
-  if (index in effectIdToStatus) {
-    let statusId = effectIdToStatus[index];
-    if (count && count > 1 && count <= 16) {
-      statusId += count - 1;
-    }
-    const path = getIconPath(String(statusId));
-    iconPathCache[cacheKey] = path;
-    return path;
+  const index = Number.parseInt(effectId, 16).toString();
+  let statusId = getStatusIdOfEffect(index);
+  if (count && count > 1 && count <= 16) {
+    statusId += count - 1;
   }
-  iconPathCache[cacheKey] = "";
-  return "";
+  const path = getIconPath(String(statusId));
+  iconPathCache[cacheKey] = path;
+  return path;
 };
 
 export const getIconUrlFromXivApi = (path: string) =>

@@ -1,6 +1,7 @@
 import { HistoryOutlined, SettingOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
+  Button,
   ConfigProvider,
   Dropdown,
   Form,
@@ -15,6 +16,7 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import classnames from "classnames";
+import copy from "copy-to-clipboard";
 import { useEffect, useRef, useState } from "react";
 import {
   addOverlayListener,
@@ -36,8 +38,8 @@ import {
   LogLineEnum,
 } from "./types/dataObject";
 import { StoreAction } from "./types/store";
-import { Config, ShowTargetName, TargetType } from "./types/ui";
-import copy from "copy-to-clipboard";
+import { Config, TargetType, YesOrNo } from "./types/ui";
+import { getInitials } from "./utils/ui";
 
 function App(): JSX.Element {
   let prevConfig = defaultConfig;
@@ -66,7 +68,7 @@ function App(): JSX.Element {
   const [messageApi, contextHolder] = message.useMessage();
 
   const { state, dispatch } = useStore();
-  const { onLogLine } = useLogLine(state, dispatch);
+  const { onLogLine } = useLogLine(config, state, dispatch);
   const {
     onInCombatChangedEvent,
     onChangePrimaryPlayer,
@@ -94,37 +96,53 @@ function App(): JSX.Element {
 
   const handleSettingCancel = () => setSettingVisible(false);
 
+  const handleResetForm = () => {
+    form.setFieldsValue(defaultConfig);
+  };
+
   const handleRowClick = (record: DataType) => {
     let text = "";
-    if (record.isDodge) {
-      text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点伤害，似乎没有效果，伤害被回避了！`;
-    } else {
-      text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${
-        record.targetName
-      } 造成了 ${record.damage} 点${
-        record.damageType === DamageType.Physics
-          ? "物理"
-          : record.damageType === DamageType.Magic
-          ? "魔法"
-          : ""
-      }伤害
-${
-  record.mutation && ~~record.mutation > 0
-    ? `减伤百分比：${record.mutation}%，`
-    : ""
-}${
-        record.effects
-          ? `状态：${[
-              ...record.effects?.map((effect) => effect.effect),
-              ...(record.isBlock ? ["格挡"] : []),
-              ...(record.isParried ? ["招架"] : []),
-            ].join(" ")}`
-          : ""
-      }`;
+    if (record.type === LogLineEnum.Ability) {
+      if (record.isDodge) {
+        text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点伤害，似乎没有效果，伤害被回避了！`;
+      } else {
+        text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${
+          record.targetName
+        } 造成了 ${record.damage} 点${
+          record.damageType === DamageType.Physics
+            ? "物理"
+            : record.damageType === DamageType.Magic
+            ? "魔法"
+            : ""
+        }伤害
+`;
+        if (record.mutation && ~~record.mutation > 0) {
+          text += `减伤百分比：${record.mutation}%，`;
+        }
+        if (
+          (record.effects && record.effects.length > 0) ||
+          record.isBlock ||
+          record.isParried
+        ) {
+          text += `状态：${[
+            ...(record.effects
+              ? record.effects?.map((effect) => effect.effect)
+              : []),
+            ...(record.isBlock ? ["格挡"] : []),
+            ...(record.isParried ? ["招架"] : []),
+          ].join(" ")}`;
+        }
+      }
+    } else if (record.type === LogLineEnum.Defeated) {
+      text = `${record.duration} ${record.ability}`;
+    } else if (record.type === LogLineEnum.Wipe) {
+      text = `${record.duration} ${record.ability}`;
+    } else if (record.type === LogLineEnum.DoT) {
+      text = `${record.duration} ${record.source} 对 ${record.targetName} 造成了 ${record.damage} 点DoT伤害`;
     }
     if (text) {
       copy(text);
-      messageApi.info("已复制到剪贴板");
+      messageApi.success("已复制到剪贴板");
     }
   };
 
@@ -159,6 +177,30 @@ ${
       if (!window.OverlayPluginApi && !overlayWs && !hostPort) {
         setIsActOverlay(false);
       }
+
+      if (!window.OverlayPluginApi && (overlayWs || hostPort)) {
+        const wsUrl = (overlayWs || hostPort) as string;
+        const connectWs = function (wsUrl: string) {
+          const ws = new WebSocket(wsUrl);
+
+          ws.addEventListener("error", (e) => {
+            setIsActOverlay(false);
+          });
+
+          ws.addEventListener("open", () => {
+            setIsActOverlay(true);
+          });
+
+          ws.addEventListener("close", () => {
+            setIsActOverlay(false);
+            window.setTimeout(() => {
+              connectWs(wsUrl);
+            }, 300);
+          });
+        };
+
+        connectWs(wsUrl);
+      }
     }, 1000);
   }, []);
 
@@ -174,7 +216,7 @@ ${
   const renderTarget = (value: string, record: DataType) => {
     const { targetType, showTargetName } = config;
     if (!record.targetIconUrl) {
-      return value;
+      return <Popover content={record.targetName}>{value}</Popover>;
     }
 
     if (targetType === TargetType.JobName) {
@@ -182,8 +224,8 @@ ${
         <Popover content={record.targetName}>
           <div>
             <div>{value}</div>
-            {showTargetName === ShowTargetName.Yes ? (
-              <div>{record.targetName?.slice(0, 2)}</div>
+            {showTargetName === YesOrNo.Yes ? (
+              <div>{getInitials(record.targetName ?? "")}</div>
             ) : null}
           </div>
         </Popover>
@@ -205,7 +247,7 @@ ${
               preview={false}
             />
 
-            {showTargetName === ShowTargetName.Yes ? (
+            {showTargetName === YesOrNo.Yes ? (
               <div
                 className={classnames({
                   "-mt-1": [TargetType.JobIcon, TargetType.JobIconV3].includes(
@@ -213,7 +255,7 @@ ${
                   ),
                 })}
               >
-                {record.targetName?.slice(0, 2)}
+                {getInitials(record.targetName ?? "")}
               </div>
             ) : null}
           </div>
@@ -411,9 +453,11 @@ ${
             <span className="mr-2">{data.combatDuration}</span>
             <span>{data.zoneName}</span>
           </div>
-          <div>
-            <span>{new Date(data.startTime).toLocaleString()}</span>
-          </div>
+          {data.startTime ? (
+            <div>
+              <span>{new Date(data.startTime).toLocaleString()}</span>
+            </div>
+          ) : null}
         </div>
       ),
     }),
@@ -492,6 +536,8 @@ ${
           open={settingVisible}
           onOk={handleSettingOk}
           onCancel={handleSettingCancel}
+          okText="保存"
+          cancelText="取消"
         >
           <Form
             form={form}
@@ -499,9 +545,11 @@ ${
             size="small"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
-            initialValues={config}
+            initialValues={{ ...defaultConfig, ...config }}
           >
-            <span>（目标列的设置需要刷新悬浮窗后生效）</span>
+            <span>
+              （保存按钮在最下面。。目标列、Dot的设置需要刷新悬浮窗后生效）
+            </span>
             <Form.Item<Config> name="targetType" label="目标列展示方式">
               <Radio.Group>
                 <Radio value={TargetType.JobName}>学者</Radio>
@@ -549,8 +597,14 @@ ${
 
             <Form.Item<Config> name="showTargetName" label="展示名称缩写">
               <Radio.Group>
-                <Radio value={ShowTargetName.Yes}>是</Radio>
-                <Radio value={ShowTargetName.No}>否</Radio>
+                <Radio value={YesOrNo.Yes}>是</Radio>
+                <Radio value={YesOrNo.No}>否</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item<Config> name="showDotDamage" label="展示Dot伤害">
+              <Radio.Group>
+                <Radio value={YesOrNo.Yes}>是</Radio>
+                <Radio value={YesOrNo.No}>否</Radio>
               </Radio.Group>
             </Form.Item>
             <Form.Item<Config> label="字体大小" name="fontSize">
@@ -580,6 +634,10 @@ ${
             <Form.Item<Config> label="减伤列宽" name="mutationWidth">
               <Slider min={1} />
             </Form.Item>
+
+            <Button type="default" onClick={handleResetForm}>
+              初始化
+            </Button>
           </Form>
         </Modal>
 

@@ -10,6 +10,7 @@ export enum StoreAction {
   ChangeZone,
   MoveDataToHistoricalData,
   SetActiveHistoricalData,
+  UpdateRSVData,
 }
 
 export interface Party extends BaseParty {

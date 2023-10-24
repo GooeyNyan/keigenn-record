@@ -7,6 +7,7 @@ import {
   LogLineEnum,
 } from "../types/dataObject";
 import { formatDuration } from "../utils/time";
+import { Config } from "../types/ui";
 
 export const MAX_HISTORICAL_DATA_LENGTH = 5;
 
@@ -27,6 +28,7 @@ export const initialState = {
   historicalData: [] as HistoricalData[],
   activeHistoricalKey: "",
   activeHistoricalData: undefined as unknown as HistoricalData,
+  rsvData: {} as Record<string, string>,
 };
 
 const handleAddList = (
@@ -294,6 +296,16 @@ const handleSetActiveHistoricalData = (
   };
 };
 
+const handleUpdateRSVData = (
+  state: typeof initialState,
+  action: any,
+): typeof initialState => {
+  if (action.key && action.value) {
+    state.rsvData[action.key] = action.value;
+  }
+  return state;
+};
+
 const reducer = (
   state: typeof initialState,
   action: any,
@@ -320,6 +332,8 @@ const reducer = (
       return handleMoveDataToHistoricalData(state, action);
     case StoreAction.SetActiveHistoricalData:
       return handleSetActiveHistoricalData(state, action);
+    case StoreAction.UpdateRSVData:
+      return handleUpdateRSVData(state, action);
     default:
       throw Error("Unknown action: " + action.type);
   }

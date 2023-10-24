@@ -5,14 +5,15 @@ export enum TargetType {
   JobIconV3,
 }
 
-export enum ShowTargetName {
+export enum YesOrNo {
   Yes = 1,
   No,
 }
 
 export type Config = {
-  targetType?: number; // 目标列展示方式
-  showTargetName?: number; // 展示名称缩写
+  targetType?: TargetType; // 目标列展示方式
+  showTargetName?: YesOrNo; // 展示名称缩写
+  showDotDamage?: YesOrNo; // 展示名称缩写
   fontSize?: number; // 字体大小
   opacity?: number; // 背景透明度
   durationWidth?: number; // 时间列宽

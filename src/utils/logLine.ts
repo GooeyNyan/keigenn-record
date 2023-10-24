@@ -32,6 +32,9 @@ export const isWipe = (e: EventResponses["LogLine"]): boolean => {
   );
 };
 
+export const isRSVData = (e: EventResponses["LogLine"]): boolean =>
+  netlog_defs.RSVData.type === e.line[0];
+
 export const DodgeDamageRegex = new RegExp(/1$/);
 export const DeathDamageRegex = new RegExp(/33$/);
 export const PhysicsDamageRegex = new RegExp(/(?<!5...)[356]$/);
@@ -154,5 +157,8 @@ export const isUsefull = (damageType: DamageType, effect: Effect): boolean => {
       ret = 1;
       break;
   }
-  return ret === 1;
+  return ret > 0;
 };
+
+export const isFriendly = (id: string) => id.startsWith('1');
+export const isEnemy = (id: string) => id.startsWith('4');

@@ -1,8 +1,12 @@
+import { callOverlayHandler } from "../../cactbot/resources/overlay_plugin_api";
 import { EventResponses } from "../../cactbot/types/event";
 import { processAbilityLine } from "../../cactbot/ui/oopsyraidsy/death_report";
+import { actionChinese } from "../constants/actionName";
 import { keigenns } from "../constants/keigenns";
+import { getStatusName } from "../constants/status";
 import { DataType, Effect, EffectIcon, LogLineEnum } from "../types/dataObject";
 import { StoreAction } from "../types/store";
+import { Config } from "../types/ui";
 import {
   DamageIcon,
   getEffectIconPath,
@@ -17,20 +21,35 @@ import {
   isAbility,
   isDefeated,
   isDot,
+  isEnemy,
+  isFriendly,
   isGainsEffect,
   isLosesEffect,
+  isRSVData,
   isUsefull,
   isWipe,
   parriedLowByte,
 } from "../utils/logLine";
 import { initialState } from "./useStore";
 
-// TODO: 清理机制
+export let gameRegion: "International" | "Chinese" | "Korean" = "Chinese";
+export const isChineseGameRegion = () => gameRegion === "Chinese";
+
+(async () => {
+  const e = await callOverlayHandler({
+    call: "cactbotLoadUser",
+    source: location.href,
+    overlayName: "raidboss",
+  });
+  if (e?.detail?.gameRegion) {
+    gameRegion = e.detail.gameRegion;
+  }
+})();
+
 export const processedLogs = new Set<string>();
 const MAX_PROCESS_LENGTH = 1000;
 
-// TODO: 清理机制
-// export const dataObjectMap = new Map<string, DataObject>();
+export const RSV_PREFIX = "_rsv_";
 
 export const canHandleLog = (eventId: string) => {
   if (!processedLogs.has(eventId)) {
@@ -78,15 +97,18 @@ export const handleAbility = (
   e: EventResponses["LogLine"],
 ) => {
   const eventId = e.line[e.line.length - 1];
+  const [type, timestamp, sourceId, source, id, ability, targetId, target] =
+    e.line;
 
-  const ability = processAbilityLine(e.line); // from cactbot UnscrambleDamage calculateDamage
+  if (!isEnemy(sourceId) || !isFriendly(targetId)) {
+    return;
+  }
 
-  const { amount, lowByte, flags, isHeal, isAttack } = ability;
+  const abilityLine = processAbilityLine(e.line); // from cactbot UnscrambleDamage calculateDamage
+
+  const { amount, lowByte, flags, isHeal, isAttack } = abilityLine;
 
   if (isAttack) {
-    const [type, timestamp, sourceId, source, id, ability, targetId, target] =
-      e.line;
-
     const damageType = getDamageType(flags, lowByte);
     const damageIcon = DamageIcon[damageType];
 
@@ -126,9 +148,19 @@ export const handleAbility = (
       state,
     });
 
+    let abilityName = ability;
+    if (ability.startsWith(RSV_PREFIX) || gameRegion !== "Chinese") {
+      const index = Number.parseInt(id, 16);
+      if (index in actionChinese) {
+        abilityName = actionChinese[index];
+      } else if (ability in state.rsvData) {
+        abilityName = state.rsvData[ability];
+      }
+    }
+
     const output: DataType = {
       key: eventId,
-      ability,
+      ability: abilityName,
       targetId,
       target,
       targetName: target,
@@ -175,11 +207,14 @@ export const handleGainsEffect = (
   const iconUrlFromCafeApi = getIconUrlFromCafeApi(path);
   const iconUrlFromXivApi = getIconUrlFromXivApi(path);
 
+  const index = Number.parseInt(effectId, 16).toString();
+  const statusName = getStatusName(index);
+
   const effectObj: Effect = {
     expiration:
       new Date(timestamp).getTime() + Number.parseFloat(duration) * 1000,
     effectId,
-    effect,
+    effect: statusName ? statusName : effect,
     sourceId,
     source,
     targetId,
@@ -264,20 +299,12 @@ export const handleDot = (
     _heading,
     sourceId,
     source,
-    // An id number lookup into the AttackType table
-    _damageType,
-    _sourceCurrentHp,
-    _sourceMaxHp,
-    _sourceCurrentMp,
-    _sourceMaxMp,
-    _sourceCurrentTp,
-    _sourceMaxTp,
-    _sourceX,
-    _sourceY,
-    _sourceZ,
-    _sourceHeading,
   ] = e.line;
   const eventId = e.line[e.line.length - 1];
+
+  if (!isEnemy(sourceId) || !isFriendly(id)) {
+    return;
+  }
 
   if (which === "DoT") {
     const output: DataType = {
@@ -354,7 +381,25 @@ export const handleWipe = (
   processedLogsCleaner();
 };
 
+export const handleRSVData = (
+  state: typeof initialState,
+  dispatch: React.Dispatch<any>,
+  e: EventResponses["LogLine"],
+) => {
+  const [type, timestamp, locale, _unknown0, key, value] = e.line;
+  const eventId = e.line[e.line.length - 1];
+
+  dispatch({
+    type: StoreAction.UpdateRSVData,
+    key,
+    value,
+  });
+
+  processedLogsCleaner();
+};
+
 export const useLogLine = (
+  config: Config,
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
 ) => {
@@ -367,12 +412,14 @@ export const useLogLine = (
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {
       handleLosesEffect(state, e);
-    } else if (isDot(e) && canHandleLog(eventId)) {
+    } else if (config.showDotDamage && isDot(e) && canHandleLog(eventId)) {
       handleDot(state, dispatch, e);
     } else if (isDefeated(e) && canHandleLog(eventId)) {
       handleDefeated(state, dispatch, e);
     } else if (isWipe(e) && canHandleLog(eventId)) {
       handleWipe(state, dispatch, e);
+    } else if (isRSVData(e) && canHandleLog(eventId)) {
+      handleRSVData(state, dispatch, e);
     }
   };
 
