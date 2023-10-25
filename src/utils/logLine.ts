@@ -160,5 +160,5 @@ export const isUsefull = (damageType: DamageType, effect: Effect): boolean => {
   return ret > 0;
 };
 
-export const isFriendly = (id: string) => id.startsWith('1');
-export const isEnemy = (id: string) => id.startsWith('4');
+export const isFriendly = (id: string) => id.startsWith("1");
+export const isEnemy = (id: string) => id.startsWith("4");
