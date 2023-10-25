@@ -61,6 +61,7 @@ export const useOverlayEvent = (
 
   const onChangeZone = (e: EventResponses["ChangeZone"]): void => {
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
+    // 为了记录正确的 zoneName 所以手动加了个延迟
     setTimeout(() => {
       dispatch({
         type: StoreAction.ChangeZone,
@@ -72,7 +73,6 @@ export const useOverlayEvent = (
     }, 500);
     if (inCombat) {
       stopTimer(Date.now());
-      inCombat = false;
     }
   };
 

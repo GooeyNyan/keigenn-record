@@ -22,6 +22,8 @@ export const isDefeated = (e: EventResponses["LogLine"]): boolean =>
 
 const actorControlFadeInCommandPre62 = "40000010";
 const actorControlFadeInCommand = "4000000F";
+const actorControlVictoryCommand = "40000003";
+const actorControlVictoryCommandVariantOrCriterion = "40000002";
 
 export const isWipe = (e: EventResponses["LogLine"]): boolean => {
   const command = e.line[netlog_defs.ActorControl.fields.command];
@@ -32,11 +34,20 @@ export const isWipe = (e: EventResponses["LogLine"]): boolean => {
   );
 };
 
+export const isVictory = (e: EventResponses["LogLine"]): boolean => {
+  const command = e.line[netlog_defs.ActorControl.fields.command];
+  return (
+    netlog_defs.ActorControl.type === e.line[0] &&
+    (command === actorControlVictoryCommand ||
+      command === actorControlVictoryCommandVariantOrCriterion)
+  );
+};
+
 export const isRSVData = (e: EventResponses["LogLine"]): boolean =>
   netlog_defs.RSVData.type === e.line[0];
 
 export const DodgeDamageRegex = new RegExp(/1$/);
-export const DeathDamageRegex = new RegExp(/33$/);
+export const DeathDamageRegex = new RegExp(/33$|^3$/);
 export const PhysicsDamageRegex = new RegExp(/(?<!5...)[356]$/);
 export const MagicDamageRegex = new RegExp(/5.{3}[356]$/);
 export const DarknessDamageRegex = new RegExp(/6.{3}[356]$/);

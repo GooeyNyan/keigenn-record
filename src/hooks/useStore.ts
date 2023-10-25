@@ -7,9 +7,8 @@ import {
   LogLineEnum,
 } from "../types/dataObject";
 import { formatDuration } from "../utils/time";
-import { Config } from "../types/ui";
 
-export const MAX_HISTORICAL_DATA_LENGTH = 5;
+export const MAX_HISTORICAL_DATA_LENGTH = 6;
 
 export const initialState = {
   list: [] as DataType[],
@@ -244,8 +243,6 @@ const handleMoveDataToHistoricalData = (
       clearInterval(timer);
     }
 
-    state.dataObjectMap.clear();
-
     const historicalDataItem: HistoricalData = {
       key: list[0].key,
       list: JSON.parse(JSON.stringify(list)),
@@ -259,7 +256,9 @@ const handleMoveDataToHistoricalData = (
       zoneName,
     };
 
-    if (historicalData.length > MAX_HISTORICAL_DATA_LENGTH) {
+    state.dataObjectMap.clear();
+
+    if (historicalData.length >= MAX_HISTORICAL_DATA_LENGTH) {
       historicalData.pop();
     }
 
@@ -276,7 +275,7 @@ const handleMoveDataToHistoricalData = (
       activeHistoricalData: historicalDataItem,
     };
   } catch (error) {
-    console.error(`onWipe Error: `, error);
+    console.error(`handleMoveDataToHistoricalData Error: `, error);
     return state;
   }
 };

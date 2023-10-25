@@ -325,13 +325,13 @@ function App(): JSX.Element {
          * 在判断历史数据里面有没有值
          */
         state.list.length > 0
-          ? state.party
+          ? state.party.length > 0
             ? state.party.map((i) => ({
                 text: `${i.jobName} - ${i.name}`,
                 value: i.id,
               }))
             : undefined
-          : state?.activeHistoricalData?.party
+          : state?.activeHistoricalData?.party.length > 0
           ? state?.activeHistoricalData?.party.map((i) => ({
               text: `${i.jobName} - ${i.name}`,
               value: i.id,
@@ -447,7 +447,9 @@ function App(): JSX.Element {
         <div>
           <div
             className={classnames({
-              "text-cyan-400 font-bold": state.activeHistoricalKey === data.key,
+              "text-cyan-400 font-bold":
+                state.list.length === 0 &&
+                state.activeHistoricalKey === data.key,
             })}
           >
             <span className="mr-2">{data.combatDuration}</span>
@@ -532,7 +534,13 @@ function App(): JSX.Element {
         {/* 设置弹窗 */}
         <Modal
           title="设置"
-          centered
+          className="top-5"
+          classNames={{
+            body: "overflow-y-scroll",
+          }}
+          styles={{
+            body: { maxHeight: viewportHeight - 160 },
+          }}
           open={settingVisible}
           onOk={handleSettingOk}
           onCancel={handleSettingCancel}
@@ -547,10 +555,14 @@ function App(): JSX.Element {
             wrapperCol={{ span: 18 }}
             initialValues={{ ...defaultConfig, ...config }}
           >
-            <span>
-              （保存按钮在最下面。。目标列、Dot的设置需要刷新悬浮窗后生效）
-            </span>
-            <Form.Item<Config> name="targetType" label="目标列展示方式">
+            <div className="mb-5">
+              （注：目标列、Dot的设置需要刷新悬浮窗后生效，下面有列宽设置）
+            </div>
+            <Form.Item<Config>
+              name="targetType"
+              label="目标列展示方式"
+              className="mb-3"
+            >
               <Radio.Group>
                 <Radio value={TargetType.JobName}>学者</Radio>
                 <Radio value={TargetType.JobIcon}>
@@ -635,9 +647,11 @@ function App(): JSX.Element {
               <Slider min={1} />
             </Form.Item>
 
-            <Button type="default" onClick={handleResetForm}>
-              初始化
-            </Button>
+            <Form.Item<Config> label="重置全部">
+              <Button type="default" onClick={handleResetForm}>
+                初始化
+              </Button>
+            </Form.Item>
           </Form>
         </Modal>
 

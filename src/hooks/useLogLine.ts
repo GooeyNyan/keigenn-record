@@ -27,6 +27,7 @@ import {
   isLosesEffect,
   isRSVData,
   isUsefull,
+  isVictory,
   isWipe,
   parriedLowByte,
 } from "../utils/logLine";
@@ -356,8 +357,6 @@ export const handleWipe = (
   dispatch: React.Dispatch<any>,
   e: EventResponses["LogLine"],
 ) => {
-  const [type, timestamp, instance, command, data0, data1, data2, data3] =
-    e.line;
   const eventId = e.line[e.line.length - 1];
 
   const output: DataType = {
@@ -372,6 +371,21 @@ export const handleWipe = (
   });
 
   const kMinimumSecondsAfterWipe = 2;
+
+  setTimeout(() => {
+    processedLogs.clear();
+    dispatch({ type: StoreAction.MoveDataToHistoricalData });
+  }, kMinimumSecondsAfterWipe * 1000);
+
+  processedLogsCleaner();
+};
+
+export const handleVictory = (
+  state: typeof initialState,
+  dispatch: React.Dispatch<any>,
+  e: EventResponses["LogLine"],
+) => {
+  const kMinimumSecondsAfterWipe = 0.3;
 
   setTimeout(() => {
     processedLogs.clear();
@@ -418,6 +432,8 @@ export const useLogLine = (
       handleDefeated(state, dispatch, e);
     } else if (isWipe(e) && canHandleLog(eventId)) {
       handleWipe(state, dispatch, e);
+    } else if (isVictory(e) && canHandleLog(eventId)) {
+      handleVictory(state, dispatch, e);
     } else if (isRSVData(e) && canHandleLog(eventId)) {
       handleRSVData(state, dispatch, e);
     }
