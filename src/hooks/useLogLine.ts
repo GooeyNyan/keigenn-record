@@ -35,17 +35,24 @@ import { inCombat } from "./useOverlayEvent";
 import { initialState } from "./useStore";
 import { useTimer } from "./useTimer";
 
-export let gameRegion: "International" | "Chinese" | "Korean" = "Chinese";
+export let gameRegion: "International" | "Chinese" | "Korean" | "Unknown" =
+  "Chinese";
 export const isChineseGameRegion = () => gameRegion === "Chinese";
 
 (async () => {
-  const e = await callOverlayHandler({
-    call: "cactbotLoadUser",
-    source: location.href,
-    overlayName: "raidboss",
-  });
-  if (e?.detail?.gameRegion) {
-    gameRegion = e.detail.gameRegion;
+  try {
+    const e = await callOverlayHandler({
+      call: "cactbotLoadUser",
+      source: location.href,
+      overlayName: "raidboss",
+    });
+    if (e?.detail?.gameRegion) {
+      gameRegion = e.detail.gameRegion;
+    }
+  } catch (e) {
+    // TODO: 这里有问题 callOverlayHandler 不会向 JS 进程正确抛出异常，catch 不到
+    console.error(e);
+    gameRegion = "Unknown";
   }
 })();
 
@@ -97,6 +104,7 @@ const filterSourceEffects = (effects: Effect[]) =>
 export const handleAbility = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
+  config: Config,
   e: EventResponses["LogLine"],
   startTimer: (params: {
     time: number;
@@ -166,7 +174,12 @@ export const handleAbility = (
     });
 
     let abilityName = ability;
-    if (ability.startsWith(RSV_PREFIX) || gameRegion !== "Chinese") {
+
+    if (
+      ability.startsWith(RSV_PREFIX) ||
+      config.autoTranslateAbilityNameInIntl === YesOrNo.Yes ||
+      !isChineseGameRegion()
+    ) {
       const index = Number.parseInt(id, 16);
       if (index in actionChinese) {
         abilityName = actionChinese[index];
@@ -439,7 +452,7 @@ export const useLogLine = (
     const eventId = e.line[e.line.length - 1];
 
     if (isAbility(e) && canHandleLog(eventId)) {
-      handleAbility(state, dispatch, e, startTimerFromAbility);
+      handleAbility(state, dispatch, config, e, startTimerFromAbility);
     } else if (isGainsEffect(e) && canHandleLog(eventId)) {
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {

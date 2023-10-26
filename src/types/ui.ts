@@ -14,7 +14,8 @@ export type Config = {
   targetType?: TargetType; // 目标列展示方式
   showTargetName?: YesOrNo; // 展示名称缩写
   showDotDamage?: YesOrNo; // 展示名称缩写
-  isCompact?: YesOrNo;
+  isCompact?: YesOrNo; // 紧凑模式
+  autoTranslateAbilityNameInIntl?: YesOrNo; // 是否自动将国际服技能名翻译为中文
   fontSize?: number; // 字体大小
   opacity?: number; // 背景透明度
   durationWidth?: number; // 时间列宽

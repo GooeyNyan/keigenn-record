@@ -56,23 +56,31 @@ function App(): JSX.Element {
     const localConfigStr = localStorage.getItem(localStorageConfigKey);
     if (localConfigStr) {
       const localConfig: Config = JSON.parse(localConfigStr);
-      // 兼容逻辑：因为默认紧凑模式了，历史用户没有 inCompact 的话，需要调整一下列宽
-      if (!("isCompact" in localConfig)) {
-        prevConfig = {
-          ...localConfig,
-          isCompact: YesOrNo.Yes,
-          durationWidth: compactConfig.durationWidth,
-          abilityWidth: compactConfig.abilityWidth,
-          targetWidth: compactConfig.targetWidth,
-          damageWidth: compactConfig.damageWidth,
-          mutationWidth: compactConfig.mutationWidth,
-        };
-      } else {
-        prevConfig = localConfig;
-      }
+      prevConfig = localConfig;
     }
   } catch (e) {
     console.error("JSON.parse localConfig error", e);
+  }
+
+  // 兼容逻辑：因为默认紧凑模式了，历史用户没有 inCompact 的话，需要调整一下列宽
+  if (!("isCompact" in prevConfig)) {
+    prevConfig = {
+      ...prevConfig,
+      isCompact: YesOrNo.Yes,
+      durationWidth: compactConfig.durationWidth,
+      abilityWidth: compactConfig.abilityWidth,
+      targetWidth: compactConfig.targetWidth,
+      damageWidth: compactConfig.damageWidth,
+      mutationWidth: compactConfig.mutationWidth,
+    };
+  }
+
+  // 兼容逻辑：
+  if (!("autoTranslateAbilityNameInIntl" in prevConfig)) {
+    prevConfig = {
+      ...prevConfig,
+      autoTranslateAbilityNameInIntl: YesOrNo.Yes,
+    };
   }
 
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
@@ -710,6 +718,15 @@ function App(): JSX.Element {
               </Radio.Group>
             </Form.Item>
             <Form.Item<Config> name="showDotDamage" label="展示Dot伤害">
+              <Radio.Group>
+                <Radio value={YesOrNo.Yes}>是</Radio>
+                <Radio value={YesOrNo.No}>否</Radio>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item<Config>
+              name="autoTranslateAbilityNameInIntl"
+              label="自动将国际服技能名翻译为中文"
+            >
               <Radio.Group>
                 <Radio value={YesOrNo.Yes}>是</Radio>
                 <Radio value={YesOrNo.No}>否</Radio>

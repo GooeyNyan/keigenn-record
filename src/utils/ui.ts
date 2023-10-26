@@ -1,11 +1,11 @@
-import { gameRegion } from "../hooks/useLogLine";
+import { isChineseGameRegion } from "../hooks/useLogLine";
 
 export const getInitials = (fullName: string): string => {
   if (!fullName) {
     return "";
   }
 
-  if (gameRegion === "Chinese") {
+  if (isChineseGameRegion()) {
     return fullName.slice(0, 2);
   }
 

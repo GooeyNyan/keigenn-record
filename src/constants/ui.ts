@@ -9,6 +9,7 @@ export const defaultConfig: Config = {
   showTargetName: YesOrNo.No,
   showDotDamage: YesOrNo.No,
   isCompact: YesOrNo.Yes,
+  autoTranslateAbilityNameInIntl: YesOrNo.Yes,
   fontSize: 12,
   opacity: 45,
   durationWidth: 40,
