@@ -1,4 +1,9 @@
-import { HistoryOutlined, SettingOutlined } from "@ant-design/icons";
+import {
+  DownCircleOutlined,
+  HistoryOutlined,
+  SettingOutlined,
+  UpCircleOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
   Button,
@@ -63,6 +68,7 @@ function App(): JSX.Element {
   const [config, setConfig] = useState<Config>(prevConfig);
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [isActOverlay, setIsActOverlay] = useState<boolean>(true);
+  const [visible, setVisible] = useState<boolean>(true);
 
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -507,44 +513,64 @@ function App(): JSX.Element {
       <div className="w-screen relative">
         {contextHolder}
         {/* 减伤数据展示 */}
-        <Table
-          ref={tableRef}
-          rowClassName={(record: DataType) =>
-            record.type === LogLineEnum.Wipe ? "wipe" : ""
-          }
-          onRow={(record: DataType) => ({
-            onClick: () => handleRowClick(record),
-          })}
-          columns={columns}
-          dataSource={
-            state?.list?.length > 0
-              ? state?.list
-              : state?.activeHistoricalData?.list ?? []
-          }
-          pagination={false}
-          virtual
-          scroll={{
-            x: viewportWidth,
-            y: viewportHeight - tableHeaderHeight,
-          }}
-          size="small"
-        />
+        {visible ? (
+          <Table
+            ref={tableRef}
+            rowClassName={(record: DataType) =>
+              record.type === LogLineEnum.Wipe ? "wipe" : ""
+            }
+            onRow={(record: DataType) => ({
+              onClick: () => handleRowClick(record),
+            })}
+            columns={columns}
+            dataSource={
+              state?.list?.length > 0
+                ? state?.list
+                : state?.activeHistoricalData?.list ?? []
+            }
+            pagination={false}
+            virtual
+            scroll={{
+              x: viewportWidth,
+              y: viewportHeight - tableHeaderHeight,
+            }}
+            size="small"
+          />
+        ) : null}
 
         {/* 右上角控件 */}
         <div className="absolute top-1.5 right-2">
-          <Dropdown
-            menu={{
-              items: dropdownItems,
-              onClick: onClickDropdown,
-            }}
-            arrow={false}
-          >
-            <HistoryOutlined className="mr-3 text-zinc-50" />
-          </Dropdown>
-          <SettingOutlined
-            className="text-zinc-50"
-            onClick={() => setSettingVisible(true)}
-          />
+          {visible ? (
+            <>
+              <UpCircleOutlined
+                className="mr-3 text-zinc-50"
+                onClick={() => setVisible(false)}
+              />
+              <Dropdown
+                menu={{
+                  items: dropdownItems,
+                  onClick: onClickDropdown,
+                }}
+                arrow={false}
+              >
+                <HistoryOutlined className="mr-3 text-zinc-50" />
+              </Dropdown>
+              <SettingOutlined
+                className="text-zinc-50"
+                onClick={() => setSettingVisible(true)}
+              />
+            </>
+          ) : (
+            <div
+              className="p-2 bg-zinc-500/50 flex items-center justify-center rounded-md cursor-pointer"
+              onClick={() => setVisible(true)}
+            >
+              <DownCircleOutlined
+                className="cursor-pointer text-zinc-50"
+                onClick={() => setVisible(true)}
+              />
+            </div>
+          )}
         </div>
 
         {/* 设置弹窗 */}
