@@ -30,6 +30,7 @@ import {
 import "./App.css";
 import {
   TableHeaderHeight,
+  compactConfig,
   defaultConfig,
   localStorageConfigKey,
 } from "./constants/ui";
@@ -48,10 +49,27 @@ import { getInitials } from "./utils/ui";
 
 function App(): JSX.Element {
   let prevConfig = defaultConfig;
+  if (prevConfig.isCompact === YesOrNo.Yes) {
+    prevConfig = { ...prevConfig, ...compactConfig };
+  }
   try {
-    const localConfig = localStorage.getItem(localStorageConfigKey);
-    if (localConfig) {
-      prevConfig = JSON.parse(localConfig);
+    const localConfigStr = localStorage.getItem(localStorageConfigKey);
+    if (localConfigStr) {
+      const localConfig: Config = JSON.parse(localConfigStr);
+      // 兼容逻辑：因为默认紧凑模式了，历史用户没有 inCompact 的话，需要调整一下列宽
+      if (!("isCompact" in localConfig)) {
+        prevConfig = {
+          ...localConfig,
+          isCompact: YesOrNo.Yes,
+          durationWidth: compactConfig.durationWidth,
+          abilityWidth: compactConfig.abilityWidth,
+          targetWidth: compactConfig.targetWidth,
+          damageWidth: compactConfig.damageWidth,
+          mutationWidth: compactConfig.mutationWidth,
+        };
+      } else {
+        prevConfig = localConfig;
+      }
     }
   } catch (e) {
     console.error("JSON.parse localConfig error", e);
@@ -103,7 +121,11 @@ function App(): JSX.Element {
   const handleSettingCancel = () => setSettingVisible(false);
 
   const handleResetForm = () => {
-    form.setFieldsValue(defaultConfig);
+    let config = defaultConfig;
+    if (config.isCompact === YesOrNo.Yes) {
+      config = { ...config, ...compactConfig };
+    }
+    form.setFieldsValue(config);
   };
 
   const handleRowClick = (record: DataType) => {
@@ -221,19 +243,19 @@ function App(): JSX.Element {
   const renderTarget = (value: string, record: DataType) => {
     const { targetType, showTargetName } = config;
     if (!record.targetIconUrl) {
-      return <Popover content={record.targetName}>{value}</Popover>;
+      return value;
     }
 
     if (targetType === TargetType.JobName) {
       return (
-        <Popover content={record.targetName}>
-          <div>
-            <div>{value}</div>
-            {showTargetName === YesOrNo.Yes ? (
-              <div>{getInitials(record.targetName ?? "")}</div>
-            ) : null}
-          </div>
-        </Popover>
+        <>
+          <div>{value}</div>
+          {showTargetName === YesOrNo.Yes ? (
+            <div className="mt-0 leading-none z-10 relative">
+              {getInitials(record.targetName ?? "")}
+            </div>
+          ) : null}
+        </>
       );
     }
 
@@ -243,28 +265,27 @@ function App(): JSX.Element {
       )
     ) {
       return (
-        <Popover content={record.targetName}>
-          <div className="flex justify-center flex-wrap w-7">
-            <Image
-              width={20}
-              src={record.targetIconUrl}
-              fallback={record.targetIconFallbackUrl}
-              preview={false}
-            />
+        <>
+          <Image
+            width={20}
+            src={record.targetIconUrl}
+            fallback={record.targetIconFallbackUrl}
+            preview={false}
+          />
 
-            {showTargetName === YesOrNo.Yes ? (
-              <div
-                className={classnames({
-                  "-mt-1": [TargetType.JobIcon, TargetType.JobIconV3].includes(
-                    targetType as TargetType,
-                  ),
-                })}
-              >
-                {getInitials(record.targetName ?? "")}
-              </div>
-            ) : null}
-          </div>
-        </Popover>
+          {showTargetName === YesOrNo.Yes ? (
+            <div
+              className={classnames("leading-none z-10 relative", {
+                "-mt-1.5": [TargetType.JobIcon, TargetType.JobIconV2].includes(
+                  targetType as TargetType,
+                ),
+                "-mt-1": TargetType.JobIconV3 === targetType,
+              })}
+            >
+              {getInitials(record.targetName ?? "")}
+            </div>
+          ) : null}
+        </>
       );
     }
 
@@ -297,9 +318,13 @@ function App(): JSX.Element {
       render: (value: string, record) => {
         if (record.type === LogLineEnum.Ability) {
           return (
-            <div className="flex items-center h-full break-all">
-              <span>{value.startsWith("unknown_") ? "未知" : value}</span>
-            </div>
+            <Popover content={value}>
+              <div className="flex items-center">
+                <span className="w-full h-full truncate">
+                  {value.startsWith("unknown_") ? "未知" : value}
+                </span>
+              </div>
+            </Popover>
           );
         }
         if (record.type === LogLineEnum.DoT) {
@@ -346,9 +371,11 @@ function App(): JSX.Element {
       render: (value, record) => {
         return record.type === LogLineEnum.Ability ||
           record.type === LogLineEnum.DoT ? (
-          <div className="flex items-center h-full">
-            {renderTarget(value, record)}
-          </div>
+          <Popover content={record.targetName}>
+            <div className="flex items-center justify-center flex-wrap w-full h-full relative">
+              {renderTarget(value, record)}
+            </div>
+          </Popover>
         ) : null;
       },
     },
@@ -370,8 +397,8 @@ function App(): JSX.Element {
           <div className="flex flex-wrap items-center h-full">
             {record.damageIcon?.url ? (
               <Image
-                className="pr-0.5"
-                width={16}
+                className={config.isCompact === YesOrNo.Yes ? "" : "pr-0.5"}
+                width={config.isCompact === YesOrNo.Yes ? 12 : 16}
                 src={record.damageIcon?.url}
                 fallback={record.damageIcon?.fallbackUrl}
                 preview={false}
@@ -397,9 +424,7 @@ function App(): JSX.Element {
         record.mutation !== prevRecord.mutation,
       render: (value) => {
         return value && value !== "0" && value > 0 ? (
-          <div className="flex items-center h-full">
-            <span>{value}%</span>
-          </div>
+          <div className="flex items-center h-full">{value}%</div>
         ) : null;
       },
     },
@@ -411,24 +436,24 @@ function App(): JSX.Element {
         record.effects?.map((i) => i.effectId).join(",") !==
         prevRecord.effects?.map((i) => i.effectId).join(","),
       render: (value) => (
-        <div className="flex items-center flex-wrap min-h-full -mt-2">
+        <div className="flex items-center flex-wrap -mt-2">
           {value?.map((effect: EffectIcon) => {
             return (
               <Popover
                 content={`${effect.effect} ${effect.source}`}
                 key={effect.effectId}
               >
-                <div className="relative h-7 mt-2">
+                <div className="relative h-5 mt-2 -top-0.5">
                   <Image
                     className={!effect.isUsefull ? "grayscale" : ""}
-                    width={18}
+                    height={24}
                     src={effect.url}
                     fallback={effect.fallbackUrl}
                     preview={false}
                   />
                   <span
                     className={classnames(
-                      "absolute top-4 left-0 text-center min-w-full",
+                      "absolute z-10 top-3.5 left-0 text-center min-w-full scale-75",
                       {
                         "text-green-300": effect.isOwner,
                       },
@@ -496,7 +521,10 @@ function App(): JSX.Element {
   return (
     <ConfigProvider
       theme={{
-        algorithm: [theme.darkAlgorithm],
+        algorithm: [
+          theme.darkAlgorithm,
+          ...(config.isCompact === YesOrNo.Yes ? [theme.compactAlgorithm] : []),
+        ],
         components: {
           Table: {
             colorBgContainer: `rgba(67, 67, 67, ${
@@ -528,7 +556,7 @@ function App(): JSX.Element {
                 : state?.activeHistoricalData?.list ?? []
             }
             pagination={false}
-            virtual
+            // virtual
             scroll={{
               x: viewportWidth,
               y: viewportHeight - tableHeaderHeight,
@@ -538,7 +566,12 @@ function App(): JSX.Element {
         ) : null}
 
         {/* 右上角控件 */}
-        <div className="absolute top-1.5 right-2">
+        <div
+          className={classnames("absolute top-1 right-2", {
+            "top-1.5": config.isCompact === YesOrNo.No,
+          })}
+          style={config.isCompact === YesOrNo.Yes ? { fontSize: `14px` } : {}}
+        >
           {visible ? (
             <>
               <UpCircleOutlined
@@ -594,11 +627,33 @@ function App(): JSX.Element {
             size="small"
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}
-            initialValues={{ ...defaultConfig, ...config }}
+            initialValues={{
+              ...defaultConfig,
+              ...(config.isCompact === YesOrNo.Yes ? compactConfig : {}),
+              ...config,
+            }}
           >
             <div className="mb-5">
               （注：目标列、Dot的设置需要刷新悬浮窗后生效，下面有列宽设置）
             </div>
+
+            <Form.Item<Config> name="isCompact" label="紧凑模式">
+              <Radio.Group>
+                <Radio
+                  value={YesOrNo.Yes}
+                  onClick={() => form.setFieldsValue(compactConfig)}
+                >
+                  是
+                </Radio>
+                <Radio
+                  value={YesOrNo.No}
+                  onClick={() => form.setFieldsValue(defaultConfig)}
+                >
+                  否
+                </Radio>
+              </Radio.Group>
+            </Form.Item>
+
             <Form.Item<Config>
               name="targetType"
               label="目标列展示方式"

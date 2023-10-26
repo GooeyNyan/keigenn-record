@@ -6,7 +6,7 @@ import { keigenns } from "../constants/keigenns";
 import { getStatusName } from "../constants/status";
 import { DataType, Effect, EffectIcon, LogLineEnum } from "../types/dataObject";
 import { StoreAction } from "../types/store";
-import { Config } from "../types/ui";
+import { Config, YesOrNo } from "../types/ui";
 import {
   DamageIcon,
   getEffectIconPath,
@@ -116,7 +116,6 @@ export const handleAbility = (
     const now = new Date(timestamp).getTime();
 
     if (!inCombat) {
-      console.log(">>> enter");
       startTimer({
         time: now,
         sourceId,
@@ -445,7 +444,11 @@ export const useLogLine = (
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {
       handleLosesEffect(state, e);
-    } else if (config.showDotDamage && isDot(e) && canHandleLog(eventId)) {
+    } else if (
+      config.showDotDamage === YesOrNo.Yes &&
+      isDot(e) &&
+      canHandleLog(eventId)
+    ) {
       handleDot(state, dispatch, e);
     } else if (isDefeated(e) && canHandleLog(eventId)) {
       handleDefeated(state, dispatch, e);

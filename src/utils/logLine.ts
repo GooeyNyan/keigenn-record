@@ -115,7 +115,6 @@ export const getMutation = (args: {
       }
       return { physics: 0, magic: 0 };
     } catch (e) {
-      console.error(">>>> unknow effect", effect);
       return { physics: 0, magic: 0 };
     }
   });

@@ -115,7 +115,7 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 10, magic: 10 },
   }, // 原初的直觉
-  "8B3": {
+  "741": {
     dodge: 1,
     physics: 1,
     magic: 1,
@@ -123,6 +123,7 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 10, magic: 10 },
   }, // 原初的勇猛
+  "742": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 原初的武猛
   "57": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 战栗
   "5B1": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 摆脱
   "199": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 死斗
@@ -185,7 +186,6 @@ export const keigenns: Record<string, Keigenn> = {
   "32A": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 行尸走肉
   "32B": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 死而不僵
   CB7: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 出死入生
-  "811": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 极光
   A7A: {
     dodge: 1,
     physics: 1,
@@ -399,7 +399,7 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 0, magic: 10 },
   }, // 抗死
-  "4B9": { dodge: 1, physics: 1, magic: 0, darkness: 0, condition: "player" }, // 亲疏自行
+  // "4B9": { dodge: 1, physics: 1, magic: 0, darkness: 0, condition: "player" }, // 亲疏自行
   "4A9": {
     dodge: 1,
     physics: 1,
@@ -432,6 +432,7 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "enemy",
     mutation: { physics: 10, magic: 10 },
   }, // 武装解除
+  "09": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "enemy" }, // 减速
   "848": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 体力增加
   "6B3": {
     dodge: 1,

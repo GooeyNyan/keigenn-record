@@ -8,6 +8,7 @@ export const defaultConfig: Config = {
   targetType: TargetType.JobIconV2,
   showTargetName: YesOrNo.No,
   showDotDamage: YesOrNo.No,
+  isCompact: YesOrNo.Yes,
   fontSize: 12,
   opacity: 45,
   durationWidth: 40,
@@ -15,4 +16,14 @@ export const defaultConfig: Config = {
   targetWidth: 58,
   damageWidth: 72,
   mutationWidth: 50,
+};
+
+export const compactConfig: Config = {
+  fontSize: 12,
+  opacity: 45,
+  durationWidth: 34,
+  abilityWidth: 54,
+  targetWidth: 50,
+  damageWidth: 60,
+  mutationWidth: 46,
 };
