@@ -7,6 +7,7 @@ import {
   LogLineEnum,
 } from "../types/dataObject";
 import { formatDuration } from "../utils/time";
+import { setInCombat } from "./useOverlayEvent";
 
 export const MAX_HISTORICAL_DATA_LENGTH = 6;
 
@@ -131,6 +132,7 @@ const handleStartCombat = (
   const kMinimumSecondsAfterWipe = 5;
 
   if (
+    state.inCombat ||
     state.startTime ||
     (state.endTime &&
       action.startTime - state.endTime < 1000 * kMinimumSecondsAfterWipe)
@@ -151,6 +153,54 @@ const handleStartCombat = (
     combatDuration: action.combatDuration,
     timer: action.timer,
   };
+};
+
+const handleStartCombatFromAbility = (
+  state: typeof initialState,
+  action: any,
+): typeof initialState => {
+  const kMinimumSecondsAfterWipe = 5;
+
+  // 已经进入战斗了就返回吧
+  if (state.inCombat) {
+    clearInterval(action.timer);
+    return state;
+  }
+
+  if (
+    state.startTime ||
+    (state.endTime &&
+      action.startTime - state.endTime < 1000 * kMinimumSecondsAfterWipe)
+  ) {
+    clearInterval(action.timer);
+    return state;
+  }
+
+  if (state.timer) {
+    clearInterval(state.timer);
+  }
+
+  // 校验是小队成员被打了，或者是小队成员动的手
+  if (
+    action.targetId === state.playerId ||
+    action.sourceId === state.playerId ||
+    state.party.find(
+      (i) => i.id === action.targetId || i.id === action.sourceId,
+    )
+  ) {
+    setInCombat(true);
+
+    return {
+      ...state,
+      startTime: action.startTime,
+      endTime: action.endTime,
+      inCombat: action.inCombat,
+      combatDuration: action.combatDuration,
+      timer: action.timer,
+    };
+  }
+
+  return state;
 };
 
 const handleEndCombat = (
@@ -333,6 +383,8 @@ const reducer = (
       return handleSetActiveHistoricalData(state, action);
     case StoreAction.UpdateRSVData:
       return handleUpdateRSVData(state, action);
+    case StoreAction.StartCombatFromAbility:
+      return handleStartCombatFromAbility(state, action);
     default:
       throw Error("Unknown action: " + action.type);
   }

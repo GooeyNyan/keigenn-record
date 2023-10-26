@@ -11,6 +11,7 @@ export enum StoreAction {
   MoveDataToHistoricalData,
   SetActiveHistoricalData,
   UpdateRSVData,
+  StartCombatFromAbility,
 }
 
 export interface Party extends BaseParty {

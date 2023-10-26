@@ -31,7 +31,9 @@ import {
   isWipe,
   parriedLowByte,
 } from "../utils/logLine";
+import { inCombat } from "./useOverlayEvent";
 import { initialState } from "./useStore";
+import { useTimer } from "./useTimer";
 
 export let gameRegion: "International" | "Chinese" | "Korean" = "Chinese";
 export const isChineseGameRegion = () => gameRegion === "Chinese";
@@ -96,20 +98,36 @@ export const handleAbility = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
   e: EventResponses["LogLine"],
+  startTimer: (params: {
+    time: number;
+    sourceId: string;
+    targetId: string;
+  }) => void,
 ) => {
   const eventId = e.line[e.line.length - 1];
   const [type, timestamp, sourceId, source, id, ability, targetId, target] =
     e.line;
-
-  if (!isEnemy(sourceId) || !isFriendly(targetId)) {
-    return;
-  }
 
   const abilityLine = processAbilityLine(e.line); // from cactbot UnscrambleDamage calculateDamage
 
   const { amount, lowByte, flags, isHeal, isAttack } = abilityLine;
 
   if (isAttack) {
+    const now = new Date(timestamp).getTime();
+
+    if (!inCombat) {
+      console.log(">>> enter");
+      startTimer({
+        time: now,
+        sourceId,
+        targetId,
+      });
+    }
+
+    if (!isEnemy(sourceId) || !isFriendly(targetId)) {
+      return;
+    }
+
     const damageType = getDamageType(flags, lowByte);
     const damageIcon = DamageIcon[damageType];
 
@@ -121,7 +139,6 @@ export const handleAbility = (
       ...filterSourceEffects([...sourceEffects]),
     ];
 
-    const now = new Date(timestamp).getTime();
     const effectIcons = keigennEffects.map((effect) => {
       const usefull = isUsefull(damageType, effect);
       let duration: string = Math.max(
@@ -417,11 +434,13 @@ export const useLogLine = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
 ) => {
+  const { startTimerFromAbility } = useTimer(state, dispatch);
+
   const onLogLine = (e: EventResponses["LogLine"]) => {
     const eventId = e.line[e.line.length - 1];
 
     if (isAbility(e) && canHandleLog(eventId)) {
-      handleAbility(state, dispatch, e);
+      handleAbility(state, dispatch, e, startTimerFromAbility);
     } else if (isGainsEffect(e) && canHandleLog(eventId)) {
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {

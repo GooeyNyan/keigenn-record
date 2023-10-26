@@ -8,6 +8,8 @@ import { getIconUrlFromCafeApi, getIconUrlFromXivApi } from "../utils/icon";
 
 export let inCombat = false;
 
+export const setInCombat = (combat: boolean) => (inCombat = combat);
+
 export const useOverlayEvent = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
