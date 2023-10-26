@@ -11,8 +11,8 @@ export const defaultConfig: Config = {
   fontSize: 12,
   opacity: 45,
   durationWidth: 40,
-  abilityWidth: 90,
-  targetWidth: 60,
-  damageWidth: 80,
+  abilityWidth: 76,
+  targetWidth: 58,
+  damageWidth: 72,
   mutationWidth: 50,
 };

@@ -406,14 +406,14 @@ function App(): JSX.Element {
         record.effects?.map((i) => i.effectId).join(",") !==
         prevRecord.effects?.map((i) => i.effectId).join(","),
       render: (value) => (
-        <div className="flex items-center flex-wrap min-h-full">
+        <div className="flex items-center flex-wrap min-h-full -mt-2">
           {value?.map((effect: EffectIcon) => {
             return (
               <Popover
                 content={`${effect.effect} ${effect.source}`}
                 key={effect.effectId}
               >
-                <div className="relative">
+                <div className="relative h-7 mt-2">
                   <Image
                     className={!effect.isUsefull ? "grayscale" : ""}
                     width={18}
@@ -423,7 +423,7 @@ function App(): JSX.Element {
                   />
                   <span
                     className={classnames(
-                      "absolute -bottom-2 left-0 text-center min-w-full",
+                      "absolute top-4 left-0 text-center min-w-full",
                       {
                         "text-green-300": effect.isOwner,
                       },
@@ -432,6 +432,22 @@ function App(): JSX.Element {
                     {effect.duration}
                   </span>
                 </div>
+                {/* <div className="flex justify-center flex-wrap w-5">
+                  <Image
+                    className={!effect.isUsefull ? "grayscale" : ""}
+                    width={18}
+                    src={effect.url}
+                    fallback={effect.fallbackUrl}
+                    preview={false}
+                  />
+                  <span
+                    className={classnames("-mt-2", {
+                      "text-green-300": effect.isOwner,
+                    })}
+                  >
+                    {effect.duration}
+                  </span>
+                </div> */}
               </Popover>
             );
           })}
