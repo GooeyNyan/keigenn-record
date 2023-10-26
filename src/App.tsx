@@ -120,10 +120,9 @@ function App(): JSX.Element {
             : record.damageType === DamageType.Magic
             ? "魔法"
             : ""
-        }伤害
-`;
+        }伤害`;
         if (record.mutation && ~~record.mutation > 0) {
-          text += `减伤百分比：${record.mutation}%，`;
+          text += `，减伤百分比：${record.mutation}%，`;
         }
         if (
           (record.effects && record.effects.length > 0) ||
