@@ -108,6 +108,11 @@ const handleAddList = (
 
     item.ability = `🥺 ${name}被${item.source}做掉了！`;
 
+    const log = state.list.find((i) => i.targetId === item.targetId);
+    if (log) {
+      item.ability += `生前血量：${log.currentHp}`;
+    }
+
     return {
       ...state,
       list: [item, ...state.list],

@@ -54,6 +54,7 @@ export type DataType = {
   isBlock?: boolean;
   isParried?: boolean;
   isDodge?: boolean;
+  currentHp?: number;
 };
 
 export type HistoricalData = {

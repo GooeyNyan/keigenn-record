@@ -564,7 +564,7 @@ function App(): JSX.Element {
                 : state?.activeHistoricalData?.list ?? []
             }
             pagination={false}
-            // virtual
+            virtual
             scroll={{
               x: viewportWidth,
               y: viewportHeight - tableHeaderHeight,

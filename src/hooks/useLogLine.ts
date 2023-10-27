@@ -1,3 +1,4 @@
+import netlog_defs from "../../cactbot/resources/netlog_defs";
 import { callOverlayHandler } from "../../cactbot/resources/overlay_plugin_api";
 import { EventResponses } from "../../cactbot/types/event";
 import { processAbilityLine } from "../../cactbot/ui/oopsyraidsy/death_report";
@@ -115,6 +116,9 @@ export const handleAbility = (
   const eventId = e.line[e.line.length - 1];
   const [type, timestamp, sourceId, source, id, ability, targetId, target] =
     e.line;
+  const currentHp = Number.parseInt(
+    e.line[netlog_defs.Ability.fields.targetCurrentHp],
+  );
 
   const abilityLine = processAbilityLine(e.line); // from cactbot UnscrambleDamage calculateDamage
 
@@ -206,6 +210,7 @@ export const handleAbility = (
       isBlock: lowByte === blockLowByte,
       isParried: lowByte === parriedLowByte,
       isDodge: lowByte === dodgeLowByte,
+      currentHp,
     };
 
     dispatch({
@@ -317,7 +322,7 @@ export const handleDot = (
     which,
     _effectId,
     damage,
-    _currentHp,
+    currentHp,
     _maxHp,
     _currentMp,
     _maxMp,
@@ -345,6 +350,7 @@ export const handleDot = (
       source,
       sourceId,
       damage: Number.parseInt(damage, 16),
+      currentHp: Number(currentHp),
     };
 
     dispatch({
