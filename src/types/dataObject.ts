@@ -38,6 +38,7 @@ export type DataType = {
   key: string;
   duration?: string;
   ability?: string;
+  lastRecord?: DataType;
   source?: string;
   sourceId?: string;
   target?: string;

@@ -463,11 +463,7 @@ export const useLogLine = (
       handleGainsEffect(state, e);
     } else if (isLosesEffect(e) && canHandleLog(eventId)) {
       handleLosesEffect(state, e);
-    } else if (
-      config.showDotDamage === YesOrNo.Yes &&
-      isDot(e) &&
-      canHandleLog(eventId)
-    ) {
+    } else if (isDot(e) && canHandleLog(eventId)) {
       handleDot(state, dispatch, e);
     } else if (isDefeated(e) && canHandleLog(eventId)) {
       handleDefeated(state, dispatch, e);

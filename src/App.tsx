@@ -33,6 +33,7 @@ import {
   compactConfig,
   defaultConfig,
   localStorageConfigKey,
+  localStorageVisibleKey,
 } from "./constants/ui";
 import { useLogLine } from "./hooks/useLogLine";
 import { useOverlayEvent } from "./hooks/useOverlayEvent";
@@ -83,6 +84,8 @@ function App(): JSX.Element {
     };
   }
 
+  const localVisible = localStorage.getItem(localStorageVisibleKey);
+
   const [viewportWidth, setViewportWidth] = useState<number>(window.innerWidth);
   const [viewportHeight, setViewportHeight] = useState<number>(
     window.innerHeight,
@@ -94,7 +97,9 @@ function App(): JSX.Element {
   const [config, setConfig] = useState<Config>(prevConfig);
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [isActOverlay, setIsActOverlay] = useState<boolean>(true);
-  const [visible, setVisible] = useState<boolean>(true);
+  const [visible, setVisible] = useState<boolean>(
+    localVisible ? localVisible === "true" : true,
+  );
 
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -128,6 +133,11 @@ function App(): JSX.Element {
 
   const handleSettingCancel = () => setSettingVisible(false);
 
+  const handleVisible = (visible: boolean) => {
+    localStorage.setItem(localStorageVisibleKey, String(visible));
+    setVisible(visible);
+  };
+
   const handleResetForm = () => {
     let config = defaultConfig;
     if (config.isCompact === YesOrNo.Yes) {
@@ -142,24 +152,34 @@ function App(): JSX.Element {
       if (record.isDodge) {
         text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点伤害，似乎没有效果，伤害被回避了！`;
       } else {
-        text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${
-          record.targetName
-        } 造成了 ${record.damage} 点${
-          record.damageType === DamageType.Physics
-            ? "物理"
-            : record.damageType === DamageType.Magic
-            ? "魔法"
-            : ""
-        }伤害`;
+        let damageType = "";
+        switch (record.damageType) {
+          case DamageType.Physics:
+            damageType = "物理";
+            break;
+          case DamageType.Magic:
+            damageType = "魔法";
+            break;
+          case DamageType.Darkness:
+            damageType = "特殊";
+            break;
+          case DamageType.Death:
+            damageType = "特殊";
+            break;
+          default:
+            break;
+        }
+        text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点${damageType}伤害`;
+
         if (record.mutation && ~~record.mutation > 0) {
-          text += `，减伤百分比：${record.mutation}%，`;
+          text += `，减伤百分比：${record.mutation}%`;
         }
         if (
           (record.effects && record.effects.length > 0) ||
           record.isBlock ||
           record.isParried
         ) {
-          text += `状态：${[
+          text += `，状态：${[
             ...(record.effects
               ? record.effects?.map((effect) => effect.effect)
               : []),
@@ -170,6 +190,28 @@ function App(): JSX.Element {
       }
     } else if (record.type === LogLineEnum.Defeated) {
       text = `${record.duration} ${record.ability}`;
+      const lastRecord = record.lastRecord;
+      if (lastRecord) {
+        if (lastRecord.currentHp) {
+          text += `生前血量：${lastRecord.currentHp}`;
+        }
+        if (lastRecord.mutation && ~~lastRecord.mutation > 0) {
+          text += `，减伤百分比：${lastRecord.mutation}%`;
+        }
+        if (
+          (lastRecord.effects && lastRecord.effects.length > 0) ||
+          lastRecord.isBlock ||
+          lastRecord.isParried
+        ) {
+          text += `，状态：${[
+            ...(lastRecord.effects
+              ? lastRecord.effects?.map((effect) => effect.effect)
+              : []),
+            ...(lastRecord.isBlock ? ["格挡"] : []),
+            ...(lastRecord.isParried ? ["招架"] : []),
+          ].join(" ")}`;
+        }
+      }
     } else if (record.type === LogLineEnum.Wipe) {
       text = `${record.duration} ${record.ability}`;
     } else if (record.type === LogLineEnum.DoT) {
@@ -190,21 +232,6 @@ function App(): JSX.Element {
     addEventListener("resize", handleResize);
     document.addEventListener("onOverlayStateUpdate", handleOverlayStateUpdate);
 
-    return () => {
-      removeOverlayListener("LogLine", onLogLine);
-      removeOverlayListener("onInCombatChangedEvent", onInCombatChangedEvent);
-      removeOverlayListener("ChangePrimaryPlayer", onChangePrimaryPlayer);
-      removeOverlayListener("PartyChanged", onPartyChanged);
-      removeOverlayListener("ChangeZone", onChangeZone);
-      removeEventListener("resize", handleResize);
-      document.removeEventListener(
-        "onOverlayStateUpdate",
-        handleOverlayStateUpdate,
-      );
-    };
-  }, []);
-
-  useEffect(() => {
     setTimeout(() => {
       const urlParams = new URLSearchParams(window.location.search);
       const overlayWs = urlParams.get("OVERLAY_WS");
@@ -237,6 +264,19 @@ function App(): JSX.Element {
         connectWs(wsUrl);
       }
     }, 1000);
+
+    return () => {
+      removeOverlayListener("LogLine", onLogLine);
+      removeOverlayListener("onInCombatChangedEvent", onInCombatChangedEvent);
+      removeOverlayListener("ChangePrimaryPlayer", onChangePrimaryPlayer);
+      removeOverlayListener("PartyChanged", onPartyChanged);
+      removeOverlayListener("ChangeZone", onChangeZone);
+      removeEventListener("resize", handleResize);
+      document.removeEventListener(
+        "onOverlayStateUpdate",
+        handleOverlayStateUpdate,
+      );
+    };
   }, []);
 
   useEffect(() => {
@@ -325,14 +365,17 @@ function App(): JSX.Element {
         record.ability !== prevRecord.ability,
       render: (value: string, record) => {
         if (record.type === LogLineEnum.Ability) {
-          return (
+          const ability = value.startsWith("unknown_") ? "未知" : value;
+          return ability.length >= 4 ? (
             <Popover content={value}>
               <div className="flex items-center">
-                <span className="w-full h-full truncate">
-                  {value.startsWith("unknown_") ? "未知" : value}
-                </span>
+                <span className="w-full h-full truncate">{ability}</span>
               </div>
             </Popover>
+          ) : (
+            <div className="flex items-center">
+              <span className="w-full h-full truncate">{ability}</span>
+            </div>
           );
         }
         if (record.type === LogLineEnum.DoT) {
@@ -377,13 +420,20 @@ function App(): JSX.Element {
           : undefined,
       onFilter: (value, record: DataType) => record.targetId === value,
       render: (value, record) => {
+        const element = renderTarget(value, record);
         return record.type === LogLineEnum.Ability ||
           record.type === LogLineEnum.DoT ? (
-          <Popover content={record.targetName}>
+          typeof element === "string" ? (
             <div className="flex items-center justify-center flex-wrap w-full h-full relative">
-              {renderTarget(value, record)}
+              {element}
             </div>
-          </Popover>
+          ) : (
+            <Popover content={record.targetName}>
+              <div className="flex items-center justify-center flex-wrap w-full h-full relative">
+                {element}
+              </div>
+            </Popover>
+          )
         ) : null;
       },
     },
@@ -447,46 +497,25 @@ function App(): JSX.Element {
         <div className="flex items-center flex-wrap -mt-2">
           {value?.map((effect: EffectIcon) => {
             return (
-              <Popover
-                content={`${effect.effect} ${effect.source}`}
-                key={effect.effectId}
-              >
-                <div className="relative h-5 mt-2 -top-0.5">
-                  <Image
-                    className={!effect.isUsefull ? "grayscale" : ""}
-                    height={24}
-                    src={effect.url}
-                    fallback={effect.fallbackUrl}
-                    preview={false}
-                  />
-                  <span
-                    className={classnames(
-                      "absolute z-10 top-3.5 left-0 text-center min-w-full scale-75",
-                      {
-                        "text-green-300": effect.isOwner,
-                      },
-                    )}
-                  >
-                    {effect.duration}
-                  </span>
-                </div>
-                {/* <div className="flex justify-center flex-wrap w-5">
-                  <Image
-                    className={!effect.isUsefull ? "grayscale" : ""}
-                    width={18}
-                    src={effect.url}
-                    fallback={effect.fallbackUrl}
-                    preview={false}
-                  />
-                  <span
-                    className={classnames("-mt-2", {
+              <div className="relative h-5 mt-2 -top-0.5" key={effect.effectId}>
+                <Image
+                  className={!effect.isUsefull ? "grayscale" : ""}
+                  height={24}
+                  src={effect.url}
+                  fallback={effect.fallbackUrl}
+                  preview={false}
+                />
+                <span
+                  className={classnames(
+                    "absolute z-10 top-3.5 left-0 text-center min-w-full scale-75",
+                    {
                       "text-green-300": effect.isOwner,
-                    })}
-                  >
-                    {effect.duration}
-                  </span>
-                </div> */}
-              </Popover>
+                    },
+                  )}
+                >
+                  {effect.duration}
+                </span>
+              </div>
             );
           })}
         </div>
@@ -560,8 +589,18 @@ function App(): JSX.Element {
             columns={columns}
             dataSource={
               state?.list?.length > 0
-                ? state?.list
-                : state?.activeHistoricalData?.list ?? []
+                ? state?.list.filter((i) => {
+                    if (i.type === LogLineEnum.DoT) {
+                      return config.showDotDamage === YesOrNo.Yes;
+                    }
+                    return true;
+                  })
+                : state?.activeHistoricalData?.list.filter((i) => {
+                    if (i.type === LogLineEnum.DoT) {
+                      return config.showDotDamage === YesOrNo.Yes;
+                    }
+                    return true;
+                  }) ?? []
             }
             pagination={false}
             virtual
@@ -584,7 +623,7 @@ function App(): JSX.Element {
             <>
               <UpCircleOutlined
                 className="mr-3 text-zinc-50"
-                onClick={() => setVisible(false)}
+                onClick={() => handleVisible(false)}
               />
               <Dropdown
                 menu={{
@@ -602,13 +641,10 @@ function App(): JSX.Element {
             </>
           ) : (
             <div
-              className="p-2 bg-zinc-500/50 flex items-center justify-center rounded-md cursor-pointer"
-              onClick={() => setVisible(true)}
+              className="mr-11 p-2 bg-zinc-500/50 flex items-center justify-center rounded-md cursor-pointer"
+              onClick={() => handleVisible(true)}
             >
-              <DownCircleOutlined
-                className="cursor-pointer text-zinc-50"
-                onClick={() => setVisible(true)}
-              />
+              <DownCircleOutlined className="cursor-pointer text-zinc-50" />
             </div>
           )}
         </div>

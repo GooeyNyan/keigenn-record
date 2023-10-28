@@ -3,6 +3,7 @@ import { Config, YesOrNo, TargetType } from "../types/ui";
 export const TableHeaderHeight = 28;
 
 export const localStorageConfigKey = "your_keigenn_record_config";
+export const localStorageVisibleKey = "your_keigenn_record_visible";
 
 export const defaultConfig: Config = {
   targetType: TargetType.JobIconV2,

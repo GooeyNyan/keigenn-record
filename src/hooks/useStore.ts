@@ -1,6 +1,7 @@
 import { useReducer } from "react";
 import { Party, StoreAction } from "../types/store";
 import {
+  DamageType,
   DataObject,
   DataType,
   HistoricalData,
@@ -103,14 +104,37 @@ const handleAddList = (
     if (item.targetId === state.playerId) {
       name = "你";
     } else if (player) {
-      name = `${player.jobName} (${player.name}) `;
+      name = `${player.jobName} ${player.name}`;
     }
 
-    item.ability = `🥺 ${name}被${item.source}做掉了！`;
-
-    const log = state.list.find((i) => i.targetId === item.targetId);
-    if (log) {
-      item.ability += `生前血量：${log.currentHp}`;
+    if (item.source) {
+      const record = state.list.find((i) => i.targetId === item.targetId);
+      if (record) {
+        item.ability += `生前血量：${record.currentHp}`;
+        let damageType = "";
+        switch (record.damageType) {
+          case DamageType.Physics:
+            damageType = "物理";
+            break;
+          case DamageType.Magic:
+            damageType = "魔法";
+            break;
+          case DamageType.Darkness:
+            damageType = "特殊";
+            break;
+          case DamageType.Death:
+            damageType = "特殊";
+            break;
+          default:
+            break;
+        }
+        item.ability = `🥺 ${name}被${item.source}用${record.ability} ${record.damage}点${damageType}伤害做掉了！`;
+        item.lastRecord = record;
+      } else {
+        item.ability = `🥺 ${name}被${item.source}做掉了！`;
+      }
+    } else {
+      item.ability = `🥺 ${name}被做掉了！`;
     }
 
     return {
