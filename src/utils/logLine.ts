@@ -47,9 +47,9 @@ export const isRSVData = (e: EventResponses["LogLine"]): boolean =>
   netlog_defs.RSVData.type === e.line[0];
 
 export const DodgeDamageRegex = new RegExp(/1$/);
-export const DeathDamageRegex = new RegExp(/33$|^3$/);
+export const DeathDamageRegex = new RegExp(/33$|^3$|^603$/);
 export const PhysicsDamageRegex = new RegExp(/(?<!5...)[356]$/);
-export const MagicDamageRegex = new RegExp(/5.{3}[356]$/);
+export const MagicDamageRegex = new RegExp(/5.{3}[35]$/);
 export const DarknessDamageRegex = new RegExp(/6.{3}[356]$/);
 
 export const dodgeLowByte = "01";
@@ -63,7 +63,7 @@ export const getDamageType = (flags: string, lowByte: string): DamageType => {
   if (DeathDamageRegex.test(flags)) {
     return DamageType.Death;
   }
-  if (PhysicsDamageRegex.test(flags)) {
+  if (lowByte === parriedLowByte || PhysicsDamageRegex.test(flags)) {
     return DamageType.Physics;
   }
   if (MagicDamageRegex.test(flags)) {
