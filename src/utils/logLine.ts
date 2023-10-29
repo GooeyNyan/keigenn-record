@@ -63,14 +63,14 @@ export const getDamageType = (flags: string, lowByte: string): DamageType => {
   if (DeathDamageRegex.test(flags)) {
     return DamageType.Death;
   }
+  if (DarknessDamageRegex.test(flags)) {
+    return DamageType.Darkness;
+  }
   if (lowByte === parriedLowByte || PhysicsDamageRegex.test(flags)) {
     return DamageType.Physics;
   }
   if (MagicDamageRegex.test(flags)) {
     return DamageType.Magic;
-  }
-  if (DarknessDamageRegex.test(flags)) {
-    return DamageType.Darkness;
   }
   return DamageType.Unknown;
 };

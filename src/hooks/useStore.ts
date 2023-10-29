@@ -94,7 +94,7 @@ const handleAddList = (
     }
   }
 
-  if (item.type === LogLineEnum.Defeated) {
+  if (item.type === LogLineEnum.Defeated && state.inCombat) {
     if (!player && item.targetId !== state.playerId) {
       return state;
     }

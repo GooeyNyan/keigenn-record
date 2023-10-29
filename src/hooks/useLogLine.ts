@@ -395,7 +395,7 @@ export const handleVictory = (
   dispatch: React.Dispatch<any>,
   e: EventResponses["LogLine"],
 ) => {
-  const kMinimumSecondsAfterWipe = 0.3;
+  const kMinimumSecondsAfterWipe = 0.5;
 
   setTimeout(() => {
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
