@@ -22,9 +22,10 @@ export const useOverlayEvent = (
     if (inCombat !== e.detail.inACTCombat) {
       if (e.detail.inACTCombat) {
         startTimer(Date.now());
-      } else {
-        stopTimer(Date.now());
       }
+      // else {
+      //   stopTimer(Date.now());
+      // }
       inCombat = e.detail.inACTCombat;
     }
   };
@@ -62,6 +63,8 @@ export const useOverlayEvent = (
   };
 
   const onChangeZone = (e: EventResponses["ChangeZone"]): void => {
+    setInCombat(false);
+    stopTimer(Date.now());
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
     // 为了记录正确的 zoneName 所以手动加了个延迟
     setTimeout(() => {
@@ -73,9 +76,6 @@ export const useOverlayEvent = (
         },
       });
     }, 500);
-    if (inCombat) {
-      stopTimer(Date.now());
-    }
   };
 
   const onCombatData = (e: EventResponses["CombatData"]): void => {};

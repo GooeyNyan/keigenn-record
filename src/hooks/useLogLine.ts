@@ -32,7 +32,7 @@ import {
   isWipe,
   parriedLowByte,
 } from "../utils/logLine";
-import { inCombat } from "./useOverlayEvent";
+import { inCombat, setInCombat } from "./useOverlayEvent";
 import { initialState } from "./useStore";
 import { useTimer } from "./useTimer";
 
@@ -57,24 +57,7 @@ export const isChineseGameRegion = () => gameRegion === "Chinese";
   }
 })();
 
-export const processedLogs = new Set<string>();
-const MAX_PROCESS_LENGTH = 1000;
-
 export const RSV_PREFIX = "_rsv_";
-
-export const canHandleLog = (eventId: string) => {
-  if (!processedLogs.has(eventId)) {
-    processedLogs.add(eventId);
-    return true;
-  }
-  return false;
-};
-
-const processedLogsCleaner = () => {
-  if (processedLogs.size > MAX_PROCESS_LENGTH) {
-    processedLogs.clear();
-  }
-};
 
 export const getDataObjectEffects = (
   state: typeof initialState,
@@ -107,7 +90,7 @@ export const handleAbility = (
   dispatch: React.Dispatch<any>,
   config: Config,
   e: EventResponses["LogLine"],
-  startTimer: (params: {
+  startTimerFromAbility: (params: {
     time: number;
     sourceId: string;
     targetId: string;
@@ -128,7 +111,7 @@ export const handleAbility = (
     const now = new Date(timestamp).getTime();
 
     if (!inCombat) {
-      startTimer({
+      startTimerFromAbility({
         time: now,
         sourceId,
         targetId,
@@ -218,7 +201,6 @@ export const handleAbility = (
       payload: output,
     });
   }
-  processedLogsCleaner();
 };
 
 export const handleGainsEffect = (
@@ -277,8 +259,6 @@ export const handleGainsEffect = (
 
     state.dataObjectMap.set(target, dataObject);
   }
-
-  processedLogsCleaner();
 };
 
 export const handleLosesEffect = (
@@ -305,8 +285,6 @@ export const handleLosesEffect = (
 
     effectMap.delete(effectId);
   }
-
-  processedLogsCleaner();
 };
 
 export const handleDot = (
@@ -358,8 +336,6 @@ export const handleDot = (
       payload: output,
     });
   }
-
-  processedLogsCleaner();
 };
 
 export const handleDefeated = (
@@ -383,14 +359,13 @@ export const handleDefeated = (
     type: StoreAction.AddList,
     payload: output,
   });
-
-  processedLogsCleaner();
 };
 
 export const handleWipe = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
   e: EventResponses["LogLine"],
+  stopTimer: (now: number) => void,
 ) => {
   const eventId = e.line[e.line.length - 1];
 
@@ -405,14 +380,14 @@ export const handleWipe = (
     payload: output,
   });
 
-  const kMinimumSecondsAfterWipe = 2;
+  setInCombat(false);
+  stopTimer(Date.now());
+
+  const kMinimumSecondsAfterWipe = 0.5;
 
   setTimeout(() => {
-    processedLogs.clear();
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
   }, kMinimumSecondsAfterWipe * 1000);
-
-  processedLogsCleaner();
 };
 
 export const handleVictory = (
@@ -423,11 +398,8 @@ export const handleVictory = (
   const kMinimumSecondsAfterWipe = 0.3;
 
   setTimeout(() => {
-    processedLogs.clear();
     dispatch({ type: StoreAction.MoveDataToHistoricalData });
   }, kMinimumSecondsAfterWipe * 1000);
-
-  processedLogsCleaner();
 };
 
 export const handleRSVData = (
@@ -443,8 +415,6 @@ export const handleRSVData = (
     key,
     value,
   });
-
-  processedLogsCleaner();
 };
 
 export const useLogLine = (
@@ -452,26 +422,26 @@ export const useLogLine = (
   state: typeof initialState,
   dispatch: React.Dispatch<any>,
 ) => {
-  const { startTimerFromAbility } = useTimer(state, dispatch);
+  const { startTimerFromAbility, stopTimer } = useTimer(state, dispatch);
 
   const onLogLine = (e: EventResponses["LogLine"]) => {
     const eventId = e.line[e.line.length - 1];
 
-    if (isAbility(e) && canHandleLog(eventId)) {
+    if (isAbility(e)) {
       handleAbility(state, dispatch, config, e, startTimerFromAbility);
-    } else if (isGainsEffect(e) && canHandleLog(eventId)) {
+    } else if (isGainsEffect(e)) {
       handleGainsEffect(state, e);
-    } else if (isLosesEffect(e) && canHandleLog(eventId)) {
+    } else if (isLosesEffect(e)) {
       handleLosesEffect(state, e);
-    } else if (isDot(e) && canHandleLog(eventId)) {
+    } else if (isDot(e)) {
       handleDot(state, dispatch, e);
-    } else if (isDefeated(e) && canHandleLog(eventId)) {
+    } else if (isDefeated(e)) {
       handleDefeated(state, dispatch, e);
-    } else if (isWipe(e) && canHandleLog(eventId)) {
-      handleWipe(state, dispatch, e);
-    } else if (isVictory(e) && canHandleLog(eventId)) {
+    } else if (isWipe(e)) {
+      handleWipe(state, dispatch, e, stopTimer);
+    } else if (isVictory(e)) {
       handleVictory(state, dispatch, e);
-    } else if (isRSVData(e) && canHandleLog(eventId)) {
+    } else if (isRSVData(e)) {
       handleRSVData(state, dispatch, e);
     }
   };
