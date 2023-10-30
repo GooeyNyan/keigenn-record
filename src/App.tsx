@@ -146,72 +146,83 @@ function App(): JSX.Element {
     form.setFieldsValue(config);
   };
 
+  const getAbilityCopyText = (record: DataType) => {
+    let damageType = "";
+    switch (record.damageType) {
+      case DamageType.Physics:
+        damageType = "物理";
+        break;
+      case DamageType.Magic:
+        damageType = "魔法";
+        break;
+      case DamageType.Darkness:
+        damageType = "特殊";
+        break;
+      case DamageType.Death:
+        damageType = "特殊";
+        break;
+      default:
+        break;
+    }
+
+    let text = `${record.duration} ${record.source}使用 ${record.ability} 对${record.targetName}造成了 ${record.damage}点${damageType}伤害`;
+
+    if (record.mutation && ~~record.mutation > 0) {
+      text += `，减伤百分比：${record.mutation}%`;
+    }
+    if (
+      (record.effects && record.effects.length > 0) ||
+      record.isBlock ||
+      record.isParried
+    ) {
+      text += `，状态：${[
+        ...(record.effects
+          ? record.effects?.map((effect) => effect.effect)
+          : []),
+        ...(record.isBlock ? ["格挡"] : []),
+        ...(record.isParried ? ["招架"] : []),
+      ].join(" ")}`;
+    }
+    return text;
+  };
+
+  const getDefeatedCopyText = (record: DataType) => {
+    let text = `${record.duration} ${record.ability}`;
+    const lastRecord = record.lastRecord;
+    if (lastRecord) {
+      if (lastRecord.currentHp) {
+        text += `生前血量：${lastRecord.currentHp}`;
+      }
+      if (lastRecord.mutation && ~~lastRecord.mutation > 0) {
+        text += `，减伤百分比：${lastRecord.mutation}%`;
+      }
+      if (
+        (lastRecord.effects && lastRecord.effects.length > 0) ||
+        lastRecord.isBlock ||
+        lastRecord.isParried
+      ) {
+        text += `，状态：${[
+          ...(lastRecord.effects
+            ? lastRecord.effects?.map((effect) => effect.effect)
+            : []),
+          ...(lastRecord.isBlock ? ["格挡"] : []),
+          ...(lastRecord.isParried ? ["招架"] : []),
+        ].join(" ")}`;
+      }
+    }
+    return text;
+  };
+
   const handleRowClick = (record: DataType) => {
     let text = "";
     if (record.type === LogLineEnum.Ability) {
       if (record.isDodge) {
         text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点伤害，似乎没有效果，伤害被回避了！`;
       } else {
-        let damageType = "";
-        switch (record.damageType) {
-          case DamageType.Physics:
-            damageType = "物理";
-            break;
-          case DamageType.Magic:
-            damageType = "魔法";
-            break;
-          case DamageType.Darkness:
-            damageType = "特殊";
-            break;
-          case DamageType.Death:
-            damageType = "特殊";
-            break;
-          default:
-            break;
-        }
-        text = `${record.duration} ${record.source} 使用 ${record.ability} 对 ${record.targetName} 造成了 ${record.damage} 点${damageType}伤害`;
-
-        if (record.mutation && ~~record.mutation > 0) {
-          text += `，减伤百分比：${record.mutation}%`;
-        }
-        if (
-          (record.effects && record.effects.length > 0) ||
-          record.isBlock ||
-          record.isParried
-        ) {
-          text += `，状态：${[
-            ...(record.effects
-              ? record.effects?.map((effect) => effect.effect)
-              : []),
-            ...(record.isBlock ? ["格挡"] : []),
-            ...(record.isParried ? ["招架"] : []),
-          ].join(" ")}`;
-        }
+        text = getAbilityCopyText(record);
       }
     } else if (record.type === LogLineEnum.Defeated) {
-      text = `${record.duration} ${record.ability}`;
-      const lastRecord = record.lastRecord;
-      if (lastRecord) {
-        if (lastRecord.currentHp) {
-          text += `生前血量：${lastRecord.currentHp}`;
-        }
-        if (lastRecord.mutation && ~~lastRecord.mutation > 0) {
-          text += `，减伤百分比：${lastRecord.mutation}%`;
-        }
-        if (
-          (lastRecord.effects && lastRecord.effects.length > 0) ||
-          lastRecord.isBlock ||
-          lastRecord.isParried
-        ) {
-          text += `，状态：${[
-            ...(lastRecord.effects
-              ? lastRecord.effects?.map((effect) => effect.effect)
-              : []),
-            ...(lastRecord.isBlock ? ["格挡"] : []),
-            ...(lastRecord.isParried ? ["招架"] : []),
-          ].join(" ")}`;
-        }
-      }
+      text = getDefeatedCopyText(record);
     } else if (record.type === LogLineEnum.Wipe) {
       text = `${record.duration} ${record.ability}`;
     } else if (record.type === LogLineEnum.DoT) {
@@ -348,7 +359,16 @@ function App(): JSX.Element {
       width: config.durationWidth,
       shouldCellUpdate: (record, prevRecord) =>
         record.duration !== prevRecord.duration,
-      render: (value) => {
+      render: (value, record) => {
+        if (record.type === LogLineEnum.Defeated && record.lastRecord) {
+          return (
+            <Popover content={getDefeatedCopyText(record)}>
+              <div className="flex items-center h-full">
+                <span>{value}</span>
+              </div>
+            </Popover>
+          );
+        }
         return (
           <div className="flex items-center h-full">
             <span>{value}</span>
@@ -381,6 +401,19 @@ function App(): JSX.Element {
         if (record.type === LogLineEnum.DoT) {
           return (
             <div className="flex items-center h-full break-all italic">
+              <span>{value}</span>
+            </div>
+          );
+        }
+        if (record.type === LogLineEnum.Defeated) {
+          return record.lastRecord ? (
+            <Popover content={getDefeatedCopyText(record)}>
+              <div className="flex items-center h-full w-96 font-bold">
+                <span>{value}</span>
+              </div>
+            </Popover>
+          ) : (
+            <div className="flex items-center h-full w-96 font-bold">
               <span>{value}</span>
             </div>
           );
