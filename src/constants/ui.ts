@@ -24,7 +24,7 @@ export const compactConfig: Config = {
   fontSize: 12,
   opacity: 45,
   durationWidth: 34,
-  abilityWidth: 54,
+  abilityWidth: 56,
   targetWidth: 50,
   damageWidth: 60,
   mutationWidth: 46,

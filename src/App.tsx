@@ -100,6 +100,10 @@ function App(): JSX.Element {
   const [visible, setVisible] = useState<boolean>(
     localVisible ? localVisible === "true" : true,
   );
+  let abilityTruncateLength = 5;
+  if (Number(config.abilityWidth) < 56) {
+    abilityTruncateLength = 4;
+  }
 
   const [form] = Form.useForm();
   const [messageApi, contextHolder] = message.useMessage();
@@ -386,15 +390,15 @@ function App(): JSX.Element {
       render: (value: string, record) => {
         if (record.type === LogLineEnum.Ability) {
           const ability = value.startsWith("unknown_") ? "未知" : value;
-          return ability.length >= 4 ? (
+          return ability.length >= abilityTruncateLength ? (
             <Popover content={value}>
-              <div className="flex items-center">
-                <span className="w-full h-full truncate">{ability}</span>
+              <div className="flex items-center h-full">
+                <span className="w-full truncate">{ability}</span>
               </div>
             </Popover>
           ) : (
-            <div className="flex items-center">
-              <span className="w-full h-full truncate">{ability}</span>
+            <div className="flex items-center h-full">
+              <span className="w-full truncate">{ability}</span>
             </div>
           );
         }
@@ -711,7 +715,7 @@ function App(): JSX.Element {
             }}
           >
             <div className="mb-5">
-              （注：目标列、Dot的设置需要刷新悬浮窗后生效，下面有列宽设置）
+              （注：目标列、Dot、技能翻译的设置需要刷新悬浮窗后生效，下面有列宽设置）
             </div>
 
             <Form.Item<Config> name="isCompact" label="紧凑模式">

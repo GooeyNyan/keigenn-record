@@ -38,6 +38,7 @@ import { useTimer } from "./useTimer";
 
 export let gameRegion: "International" | "Chinese" | "Korean" | "Unknown" =
   "Chinese";
+
 export const isChineseGameRegion = () => gameRegion === "Chinese";
 
 (async () => {
@@ -312,6 +313,13 @@ export const handleDot = (
     _heading,
     sourceId,
     source,
+    damageType,
+    sourceCurrentHp,
+    sourceMaxHp,
+    sourceCurrentMp,
+    sourceMaxMp,
+    _sourceCurrentTp,
+    _sourceMaxTp,
   ] = e.line;
   const eventId = e.line[e.line.length - 1];
 
@@ -346,19 +354,21 @@ export const handleDefeated = (
   const [type, timestamp, targetId, target, sourceId, source] = e.line;
   const eventId = e.line[e.line.length - 1];
 
-  const output: DataType = {
-    key: eventId,
-    type: LogLineEnum.Defeated,
-    targetId,
-    target,
-    sourceId,
-    source,
-  };
+  if (isFriendly(targetId)) {
+    const output: DataType = {
+      key: eventId,
+      type: LogLineEnum.Defeated,
+      targetId,
+      target,
+      sourceId,
+      source,
+    };
 
-  dispatch({
-    type: StoreAction.AddList,
-    payload: output,
-  });
+    dispatch({
+      type: StoreAction.AddList,
+      payload: output,
+    });
+  }
 };
 
 export const handleWipe = (

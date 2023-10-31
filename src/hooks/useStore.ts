@@ -11,6 +11,7 @@ import { formatDuration } from "../utils/time";
 import { inCombat, setInCombat } from "./useOverlayEvent";
 
 export const MAX_HISTORICAL_DATA_LENGTH = 6;
+export const EMPTY_OBJECT_ID = "E0000000";
 
 export const initialState = {
   list: [] as DataType[],
@@ -107,10 +108,9 @@ const handleAddList = (
       name = `${player.jobName} ${player.name}`;
     }
 
-    if (item.source) {
+    if (item.sourceId !== EMPTY_OBJECT_ID) {
       const record = state.list.find((i) => i.targetId === item.targetId);
       if (record) {
-        item.ability += `生前血量：${record.currentHp}`;
         let damageType = "";
         switch (record.damageType) {
           case DamageType.Physics:
@@ -128,10 +128,10 @@ const handleAddList = (
           default:
             break;
         }
-        item.ability = `🥺 ${name}被${item.source}用${record.ability} ${record.damage}点${damageType}伤害做掉了！`;
+        item.ability = `🥺 ${name}被${record.ability} ${record.damage}点${damageType}伤害做掉了！`;
         item.lastRecord = record;
       } else {
-        item.ability = `🥺 ${name}被${item.source}做掉了！`;
+        item.ability = `🥺 ${name}被做掉了！`;
       }
     } else {
       item.ability = `🥺 ${name}被做掉了！`;

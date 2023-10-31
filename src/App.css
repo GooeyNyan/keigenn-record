@@ -15,3 +15,7 @@
 .wipe {
   background-color: rgba(67, 67, 67, 0.5);
 }
+
+.rc-virtual-list-scrollbar-horizontal {
+  display: none;
+}
