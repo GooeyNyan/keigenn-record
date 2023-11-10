@@ -435,8 +435,6 @@ export const useLogLine = (
   const { startTimerFromAbility, stopTimer } = useTimer(state, dispatch);
 
   const onLogLine = (e: EventResponses["LogLine"]) => {
-    const eventId = e.line[e.line.length - 1];
-
     if (isAbility(e)) {
       handleAbility(state, dispatch, config, e, startTimerFromAbility);
     } else if (isGainsEffect(e)) {

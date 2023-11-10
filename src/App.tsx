@@ -117,6 +117,8 @@ function App(): JSX.Element {
     onChangeZone,
   } = useOverlayEvent(state, dispatch);
 
+  const onLogLineRef = useRef(onLogLine);
+
   const handleResize = () => {
     setViewportWidth(window.innerWidth);
     setViewportHeight(window.innerHeight);
@@ -239,7 +241,7 @@ function App(): JSX.Element {
   };
 
   useEffect(() => {
-    addOverlayListener("LogLine", onLogLine);
+    // addOverlayListener("LogLine", onLogLineRef.current);
     addOverlayListener("onInCombatChangedEvent", onInCombatChangedEvent);
     addOverlayListener("ChangePrimaryPlayer", onChangePrimaryPlayer);
     addOverlayListener("PartyChanged", onPartyChanged);
@@ -281,7 +283,7 @@ function App(): JSX.Element {
     }, 1000);
 
     return () => {
-      removeOverlayListener("LogLine", onLogLine);
+      removeOverlayListener("LogLine", onLogLineRef.current);
       removeOverlayListener("onInCombatChangedEvent", onInCombatChangedEvent);
       removeOverlayListener("ChangePrimaryPlayer", onChangePrimaryPlayer);
       removeOverlayListener("PartyChanged", onPartyChanged);
@@ -302,6 +304,15 @@ function App(): JSX.Element {
       }
     }
   }, [tableRef.current]);
+
+  useEffect(() => {
+    if (onLogLineRef.current && config) {
+      removeOverlayListener("LogLine", onLogLineRef.current);
+
+      onLogLineRef.current = onLogLine;
+      addOverlayListener("LogLine", onLogLineRef.current);
+    }
+  }, [config]);
 
   const renderTarget = (value: string, record: DataType) => {
     const { targetType, showTargetName } = config;
@@ -714,10 +725,6 @@ function App(): JSX.Element {
               ...config,
             }}
           >
-            <div className="mb-5">
-              （注：目标列、Dot、技能翻译的设置需要刷新悬浮窗后生效，下面有列宽设置）
-            </div>
-
             <Form.Item<Config> name="isCompact" label="紧凑模式">
               <Radio.Group>
                 <Radio
