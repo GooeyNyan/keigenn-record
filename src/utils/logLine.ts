@@ -56,23 +56,33 @@ export const dodgeLowByte = "01";
 export const blockLowByte = "05";
 export const parriedLowByte = "06";
 
+const flagsCache: Record<string, DamageType> = {};
+
 export const getDamageType = (flags: string, lowByte: string): DamageType => {
+  const cache = flagsCache[flags];
+  if (cache) {
+    return cache;
+  }
+
+  let ret: DamageType;
+
   if (lowByte === "01") {
-    return DamageType.Dodge;
+    ret = DamageType.Dodge;
+  } else if (DeathDamageRegex.test(flags)) {
+    ret = DamageType.Death;
+  } else if (DarknessDamageRegex.test(flags)) {
+    ret = DamageType.Darkness;
+  } else if (lowByte === parriedLowByte || PhysicsDamageRegex.test(flags)) {
+    ret = DamageType.Physics;
+  } else if (MagicDamageRegex.test(flags)) {
+    ret = DamageType.Magic;
+  } else {
+    ret = DamageType.Unknown;
   }
-  if (DeathDamageRegex.test(flags)) {
-    return DamageType.Death;
-  }
-  if (DarknessDamageRegex.test(flags)) {
-    return DamageType.Darkness;
-  }
-  if (lowByte === parriedLowByte || PhysicsDamageRegex.test(flags)) {
-    return DamageType.Physics;
-  }
-  if (MagicDamageRegex.test(flags)) {
-    return DamageType.Magic;
-  }
-  return DamageType.Unknown;
+
+  flagsCache[flags] = ret;
+
+  return ret;
 };
 
 const blockMutation = { physics: 20, magic: 20 };
