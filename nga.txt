@@ -1,0 +1,85 @@
+======
+[b][size=150%]预览[/size][/b][h][/h]
+
+[img]./mon_202310/26/-7s28Q18z-eh9cZ13T3cShb-eg.png[/img]
+
+
+======
+[b][size=150%]食用说明[/size][/b][h][/h]
+
+[b][size=130%]悬浮窗地址[/size][/b]
+
+[quote][size=130%][url=https://ff14.top]https://ff14.top[/url][/size][/quote]
+
+
+[quote] 上面地址打不开的，可以尝试 [size=130%][url=https://hh.diemoe.net/]https://hh.diemoe.net/[/url][/size][/quote]
+
+[b][size=130%]添加悬浮窗[/size][/b]
+
+[size=110%][quote]
+[list][*] 在 [b]ACT[/b] - [b]悬浮窗插件[/b] 中，点击左下角 [b]新建[/b]
+[*] 输入任意名称，选择 [b]预设[/b] - [b]自定义悬浮窗[/b]，[b]类型[/b] - [b]数据统计[/b]
+[*] 在 [b]悬浮窗地址[/b] 中填入上方提供的地址 [b][u][url=https://ff14.top]https://ff14.top[/url][/u][/b]
+[*] 将悬浮窗调至合适大小、缩放后，锁定悬浮窗即可食用。
+[/list]
+[/quote][/size]
+
+======
+[b][size=150%]详细介绍[/size][/b][h][/h]
+
+[size=110%][quote]
+[list][*] 回溯历史场次减伤记录
+[*] 复制减伤记录分享
+[*] 设置职业图标，显示名称简写、 [u]DoT[/u] 伤害，调整字体大小、列宽
+[*] 小队成员减伤记录过滤、排序
+[/list]
+[/quote][/size]
+
+[size=130%][b]示例图[/b][/size]
+
+
+[quote]
+回溯历史场次减伤记录
+
+[img]./mon_202310/26/-7s28Q18z-3718K1xT1kSb0-f6.jpg[/img]
+[/quote]
+
+
+[quote]
+点击复制减伤记录分享
+
+[img]./mon_202310/26/-7s28Q18z-gl0iZkT3cShb-79.png[/img]
+13:45 凯纳槽 使用 虚无洪流 对 xx 造成了 18611 点魔法伤害 减伤百分比：59.54%，状态：圣盾阵 骑士的坚守 预警 壁垒 格挡
+
+00:18 你被伊甸之约用邪法 6216点魔法伤害做掉了！生前血量：2496，减伤百分比：65.73%，状态：铁壁 预警 壁垒 盾阵 雪仇 格挡
+[/quote]
+
+
+[quote]
+设置职业图标，显示名称简写、 [u]DoT[/u] 伤害，调整字体大小、列宽
+
+[img]./mon_202310/26/-7s28Q18z-4a9sK1hT3cSmx-wm.png[/img]
+
+[img]./mon_202310/26/-7s28Q18z-1rebZeT1kShb-ai.png[/img]
+[/quote]
+
+
+[quote]
+小队成员减伤记录过滤、排序
+
+[img]./mon_202310/26/-7s28Q18z-bu12K18T1kSgw-8v.png[/img]
+[/quote]
+
+
+[b][size=150%]源码[/size][/b][h][/h]
+
+[url=https://github.com/GooeyNyan/keigenn-record]keigenn-record[/url] MIT 协议随意使用。
+
+
+[b][size=150%]特别致谢[/size][/b][h][/h]
+
+创意来自 Souma@海猫茶屋 [@60027442] [url=/read.php?tid=28047277][幻想科技] [ACT] [悬浮窗] [H2必备] 小队减伤记录 NGA玩家社区[/url]，并且在开发过程中受到了很大的帮助，在此特别致谢！
+
+使用过程中如遇到错误、有功能需求，欢迎在本贴反馈！(不知道有没有人用就是叻&#129402;)
+
+同时也在考虑增加减伤覆盖情况的时间轴速查功能，写好了再说()
