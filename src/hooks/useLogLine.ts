@@ -36,28 +36,6 @@ import { inCombat, setInCombat } from "./useOverlayEvent";
 import { initialState } from "./useStore";
 import { useTimer } from "./useTimer";
 
-export let gameRegion: "International" | "Chinese" | "Korean" | "Unknown" =
-  "Chinese";
-
-export const isChineseGameRegion = () => gameRegion === "Chinese";
-
-(async () => {
-  try {
-    const e = await callOverlayHandler({
-      call: "cactbotLoadUser",
-      source: location.href,
-      overlayName: "raidboss",
-    });
-    if (e?.detail?.gameRegion) {
-      gameRegion = e.detail.gameRegion;
-    }
-  } catch (e) {
-    // TODO: 这里有问题 callOverlayHandler 不会向 JS 进程正确抛出异常，catch 不到
-    console.error(e);
-    gameRegion = "Unknown";
-  }
-})();
-
 export const RSV_PREFIX = "_rsv_";
 
 export const getDataObjectEffects = (
@@ -163,17 +141,14 @@ export const handleAbility = (
 
     let abilityName = ability;
 
+    const index = Number.parseInt(id, 16);
     if (
-      ability.startsWith(RSV_PREFIX) ||
-      config.autoTranslateAbilityNameInIntl === YesOrNo.Yes ||
-      !isChineseGameRegion()
+      config.autoTranslateAbilityNameInIntl === YesOrNo.Yes &&
+      index in actionChinese
     ) {
-      const index = Number.parseInt(id, 16);
-      if (index in actionChinese) {
-        abilityName = actionChinese[index];
-      } else if (ability in state.rsvData) {
-        abilityName = state.rsvData[ability];
-      }
+      abilityName = actionChinese[index];
+    } else if (ability.startsWith(RSV_PREFIX) && ability in state.rsvData) {
+      abilityName = state.rsvData[ability];
     }
 
     const output: DataType = {

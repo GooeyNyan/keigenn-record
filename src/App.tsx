@@ -46,7 +46,7 @@ import {
 } from "./types/dataObject";
 import { StoreAction } from "./types/store";
 import { Config, TargetType, YesOrNo } from "./types/ui";
-import { getInitials } from "./utils/ui";
+import { getAbbreviation } from "./utils/ui";
 
 function App(): JSX.Element {
   let prevConfig = defaultConfig;
@@ -326,7 +326,7 @@ function App(): JSX.Element {
           <div>{value}</div>
           {showTargetName === YesOrNo.Yes ? (
             <div className="mt-0 leading-none z-10 relative">
-              {getInitials(record.targetName ?? "")}
+              {getAbbreviation(record.targetName ?? "")}
             </div>
           ) : null}
         </>
@@ -356,7 +356,7 @@ function App(): JSX.Element {
                 "-mt-1": TargetType.JobIconV3 === targetType,
               })}
             >
-              {getInitials(record.targetName ?? "")}
+              {getAbbreviation(record.targetName ?? "")}
             </div>
           ) : null}
         </>

@@ -1,15 +1,26 @@
-import { isChineseGameRegion } from "../hooks/useLogLine";
+const intlNameRegex = /([A-Z])\S+ ([A-Z])\S+/;
 
-export const getInitials = (fullName: string): string => {
+const nameCache: Record<string, string> = {};
+
+export const getAbbreviation = (fullName: string): string => {
   if (!fullName) {
     return "";
   }
 
-  if (isChineseGameRegion()) {
-    return fullName.slice(0, 2);
+  const cache = nameCache[fullName];
+  if (cache) {
+    return cache;
   }
 
-  const nameParts = fullName.split(" ");
-  const initials = nameParts.map((part) => part.charAt(0).toUpperCase());
-  return initials.join(".") + ".";
+  let ret = "";
+
+  if (intlNameRegex.test(fullName)) {
+    ret = fullName.replace(intlNameRegex, `$1.$2.`);
+  } else {
+    ret = fullName.slice(0, 2);
+  }
+
+  nameCache[fullName] = ret;
+
+  return ret;
 };
