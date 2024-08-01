@@ -3,7 +3,7 @@ import { EventResponses } from "../../cactbot/types/event";
 import { Party, StoreAction } from "../types/store";
 import { initialState } from "./useStore";
 import { useTimer } from "./useTimer";
-import Util from "../utils/job";
+import Util, { nameToJobEnum } from "../utils/job";
 import { getIconUrlFromCafeApi, getIconUrlFromXivApi } from "../utils/icon";
 
 export let inCombat = false;
@@ -54,7 +54,10 @@ export const useOverlayEvent = (
               ...i,
               jobName: Util.nameToFullName(Util.jobEnumToJob(i.job)).simple2,
               jobIconPath: path,
-              jobIconUrl: getIconUrlFromCafeApi(path),
+
+              jobIconUrl: [nameToJobEnum.VPR, nameToJobEnum.PCT].includes(i.job)
+                ? getIconUrlFromXivApi(path)
+                : getIconUrlFromCafeApi(path),
               jobIconFallbackUrl: getIconUrlFromXivApi(path),
             };
           }),

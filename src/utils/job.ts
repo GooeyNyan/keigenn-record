@@ -5,6 +5,24 @@ import { getIconPath } from "./icon";
 
 const iconToJobEnum: Record<FFIcon, number> = {
   NONE: 0,
+  Gladiator: 1,
+  Pugilist: 2,
+  Marauder: 3,
+  Lancer: 4,
+  Archer: 5,
+  Conjurer: 6,
+  Thaumaturge: 7,
+  Carpenter: 8,
+  Blacksmith: 9,
+  Armorer: 10,
+  Goldsmith: 11,
+  Leatherworker: 12,
+  Weaver: 13,
+  Alchemist: 14,
+  Culinarian: 15,
+  Miner: 16,
+  Botanist: 17,
+  Fisher: 18,
   Paladin: 19,
   Monk: 20,
   Warrior: 21,
@@ -12,21 +30,26 @@ const iconToJobEnum: Record<FFIcon, number> = {
   Bard: 23,
   WhiteMage: 24,
   BlackMage: 25,
+  Arcanist: 26,
   Summoner: 27,
   Scholar: 28,
+  Rogue: 29,
   Ninja: 30,
   Machinist: 31,
   DarkKnight: 32,
   Astrologian: 33,
   Samurai: 34,
   RedMage: 35,
+  BlueMage: 36,
   Gunbreaker: 37,
   Dancer: 38,
   Reaper: 39,
   Sage: 40,
+  Viper: 41,
+  Pictomancer: 42,
 };
 
-const nameToJobEnum: Record<Job, number> = {
+export const nameToJobEnum: Record<Job, number> = {
   NONE: 0,
   GLA: 1,
   PGL: 2,
@@ -68,6 +91,8 @@ const nameToJobEnum: Record<Job, number> = {
   DNC: 38,
   RPR: 39,
   SGE: 40,
+  VPR: 41,
+  PCT: 42,
 };
 
 const nameToFullName: Record<
@@ -493,6 +518,26 @@ const nameToFullName: Record<
     iconFramed: "062140",
     iconV3: "062420",
   },
+  VPR: {
+    en: "Viper",
+    ja: "ヴァイパー",
+    cn: "蝰蛇剑士",
+    simple1: "蛇",
+    simple2: "蝰蛇",
+    icon: "062041",
+    iconFramed: "062141",
+    iconV3: "062421",
+  },
+  PCT: {
+    en: "Pictomancer",
+    ja: "ピクトマンサー",
+    cn: "绘灵法师",
+    simple1: "绘",
+    simple2: "绘灵",
+    icon: "062042",
+    iconFramed: "062142",
+    iconV3: "062422",
+  },
 };
 const allJobs = Object.keys(nameToJobEnum) as Job[];
 const allRoles = [
@@ -515,9 +560,10 @@ const meleeDpsJobs: Job[] = [
   "NIN",
   "SAM",
   "RPR",
+  "VPR",
 ];
 const rangedDpsJobs: Job[] = ["ARC", "BRD", "DNC", "MCH"];
-const casterDpsJobs: Job[] = ["BLU", "RDM", "BLM", "SMN", "ACN", "THM"];
+const casterDpsJobs: Job[] = ["BLU", "RDM", "BLM", "SMN", "ACN", "THM", "PCT"];
 const dpsJobs: Job[] = [...meleeDpsJobs, ...rangedDpsJobs, ...casterDpsJobs];
 const battleJobs: Job[] = [
   ...tankJobs,
