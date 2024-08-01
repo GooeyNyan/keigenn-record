@@ -1,5 +1,4 @@
 import { useReducer } from "react";
-import { Party, StoreAction } from "../types/store";
 import {
   DamageType,
   DataObject,
@@ -7,8 +6,9 @@ import {
   HistoricalData,
   LogLineEnum,
 } from "../types/dataObject";
+import { Party, StoreAction } from "../types/store";
 import { formatDuration } from "../utils/time";
-import { inCombat, setInCombat } from "./useOverlayEvent";
+import { setInCombat } from "./useOverlayEvent";
 
 export const MAX_HISTORICAL_DATA_LENGTH = 6;
 export const EMPTY_OBJECT_ID = "E0000000";

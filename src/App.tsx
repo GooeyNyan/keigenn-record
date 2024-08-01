@@ -19,7 +19,7 @@ import {
   message,
   theme,
 } from "antd";
-import type { ColumnsType } from "antd/es/table";
+import type { ColumnsType, TableRef } from "antd/es/table";
 import classnames from "classnames";
 import copy from "copy-to-clipboard";
 import { useEffect, useRef, useState } from "react";
@@ -93,7 +93,7 @@ function App(): JSX.Element {
   const [tableHeaderHeight, setTableHeaderHeight] =
     useState<number>(TableHeaderHeight);
   const [settingVisible, setSettingVisible] = useState<boolean>(false);
-  const tableRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef<TableRef>(null);
   const [config, setConfig] = useState<Config>(prevConfig);
   const [isLocked, setIsLocked] = useState<boolean>(true);
   const [isActOverlay, setIsActOverlay] = useState<boolean>(true);

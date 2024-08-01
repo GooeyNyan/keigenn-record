@@ -1,5 +1,4 @@
 import netlog_defs from "../../cactbot/resources/netlog_defs";
-import { callOverlayHandler } from "../../cactbot/resources/overlay_plugin_api";
 import { EventResponses } from "../../cactbot/types/event";
 import { processAbilityLine } from "../../cactbot/ui/oopsyraidsy/death_report";
 import { actionChinese } from "../constants/actionName";
@@ -216,6 +215,7 @@ export const handleGainsEffect = (
     url: iconUrlFromCafeApi,
     fallbackUrl: iconUrlFromXivApi,
   };
+
   let dataObject = state.dataObjectMap.get(target);
 
   if (dataObject) {
@@ -254,7 +254,7 @@ export const handleLosesEffect = (
     count,
   ] = e.line;
 
-  let dataObject = state.dataObjectMap.get(target);
+  const dataObject = state.dataObjectMap.get(target);
 
   if (dataObject) {
     const effectMap = dataObject.effectMap;
@@ -392,7 +392,7 @@ export const handleRSVData = (
   dispatch: React.Dispatch<any>,
   e: EventResponses["LogLine"],
 ) => {
-  const [type, timestamp, locale, _unknown0, key, value] = e.line;
+  const [type, timestamp, locale, unknown0, key, value] = e.line;
   const eventId = e.line[e.line.length - 1];
 
   dispatch({

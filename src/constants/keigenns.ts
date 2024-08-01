@@ -69,8 +69,24 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 30, magic: 30 },
   },
+  // 大预警
+  EF5: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 40, magic: 40 },
+  },
+  // 大预警[护盾]
+  EF6: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+  },
   // 武装戍卫 效果时间内自身的格挡发动率变为100%
-  // TODO 把格挡、招架纳入减伤范围
   "497": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 武装戍卫
   // 武装
   "498": {
@@ -152,6 +168,14 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 30, magic: 30 },
   }, // 复仇
+  EF8: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 40, magic: 40 },
+  }, // 大复仇
   "49A": {
     dodge: 1,
     physics: 1,
@@ -175,6 +199,14 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 30, magic: 30 },
   }, // 暗影墙
+  EFB: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 40, magic: 40 },
+  }, // 大暗影墙
   "766": {
     dodge: 1,
     physics: 0,
@@ -219,6 +251,14 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 30, magic: 30 },
   }, // 星云
+  EFE: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 40, magic: 40 },
+  }, // 大星云
   "72F": {
     dodge: 1,
     physics: 0,
@@ -497,4 +537,18 @@ export const keigenns: Record<string, Keigenn> = {
     condition: "player",
     mutation: { physics: 80, magic: 80 },
   }, // 灵魂之青
+  E66: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+  }, // 坦培拉涂层
+  E67: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+  }, // 油性坦培拉
 };
