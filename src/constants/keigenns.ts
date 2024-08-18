@@ -369,6 +369,14 @@ export const keigenns: Record<string, Keigenn> = {
     darkness: 1,
     condition: "player",
   }, // 建筑神之塔
+  F38: {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 10, magic: 10 },
+  }, // 世界树之干
   "781": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 中间学派
   A2F: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 均衡诊断
   A30: { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 齐衡诊断
