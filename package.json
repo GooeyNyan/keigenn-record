@@ -29,5 +29,11 @@
     "typescript": "^5.3.2",
     "vite": "^5.0.4",
     "vite-plugin-css-injected-by-js": "^3.3.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "esbuild"
+    ]
   }
 }
