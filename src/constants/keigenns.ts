@@ -285,6 +285,14 @@ export const keigenns: Record<string, Keigenn> = {
     mutation: { physics: 15, magic: 15 },
   }, // 刚玉之清
   "4C2": { dodge: 1, physics: 1, magic: 1, darkness: 1, condition: "player" }, // 神祝祷
+  "4C3": {
+    dodge: 1,
+    physics: 1,
+    magic: 1,
+    darkness: 1,
+    condition: "player",
+    mutation: { physics: 10, magic: 10 },
+  }, // 告解
   "751": {
     dodge: 1,
     physics: 1,
